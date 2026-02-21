@@ -8,13 +8,18 @@ services:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: "1"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      DB_HOST: ${DB_HOST:-host.docker.internal}
-      DB_PORT: ${DB_PORT:-5433}
+      DB_HOST: ${DB_HOST:-postgres_app}
+      DB_PORT: ${DB_PORT:-5432}
       DB_USER: ${DB_USER:-arabia_insurance}
       DB_PASSWORD: ${DB_PASSWORD:-aivaa@edata.ae}
       DB_NAME: ${DB_NAME:-aiva}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - default
+      - n8n_default
     ports:
       - "3000:3000"
     restart: unless-stopped
+
+networks:
+  n8n_default:
+    external: true
