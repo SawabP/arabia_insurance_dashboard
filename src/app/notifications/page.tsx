@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, Users, AlertCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NotificationsPage() {
     const notifications = await getNotifications();
 
