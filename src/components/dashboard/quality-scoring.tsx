@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Target, BarChart3, Star, Percent } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,6 +10,14 @@ interface QualityScoringProps {
     metrics: any;
     trends: any[];
 }
+
+const QUALITY_TOOLTIPS = {
+    module: 'Outcome Scoring summarizes AI performance using a weighted mix of automated resolution and lead conversion metrics.',
+    aiQualityIndex: 'A custom 0-100 score combining resolution rate and lead conversion rate, capped at 100 for easy monitoring.',
+    resolutionRate: 'Share of unique customers handled without human escalation (calculated here as 100 minus escalation rate).',
+    outputConversion: 'Share of unique customers who submitted high-intent actions like quote or contact forms.',
+    trend: 'Daily quality score trend over time. Each bar shows the calculated AI quality score for that date.',
+} as const;
 
 export function QualityScoring({ metrics, trends }: QualityScoringProps) {
     const score = parseInt(metrics.qualityScore);
@@ -19,6 +28,7 @@ export function QualityScoring({ metrics, trends }: QualityScoringProps) {
                 <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
                     <Target className="h-4 w-4 text-primary" />
                     Outcome Scoring Module
+                    <InfoTooltip content={QUALITY_TOOLTIPS.module} align="start" />
                 </CardTitle>
                 <div className={cn(
                     "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
@@ -33,6 +43,7 @@ export function QualityScoring({ metrics, trends }: QualityScoringProps) {
                         <p className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1.5">
                             <Star className="h-3 w-3" />
                             AI Quality Index
+                            <InfoTooltip content={QUALITY_TOOLTIPS.aiQualityIndex} />
                         </p>
                         <div className="flex items-baseline gap-1">
                             <h3 className="text-3xl font-black">{score}</h3>
@@ -50,6 +61,7 @@ export function QualityScoring({ metrics, trends }: QualityScoringProps) {
                         <p className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1.5">
                             <Percent className="h-3 w-3" />
                             Resolution Rate
+                            <InfoTooltip content={QUALITY_TOOLTIPS.resolutionRate} />
                         </p>
                         <h3 className="text-3xl font-black">{metrics.resolutionRate}%</h3>
                         <p className="text-[10px] text-emerald-500 font-bold">+2.4% vs last period</p>
@@ -59,6 +71,7 @@ export function QualityScoring({ metrics, trends }: QualityScoringProps) {
                         <p className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1.5">
                             <BarChart3 className="h-3 w-3" />
                             Output conversion
+                            <InfoTooltip content={QUALITY_TOOLTIPS.outputConversion} />
                         </p>
                         <h3 className="text-3xl font-black">{metrics.leadConversionRate}%</h3>
                         <p className="text-[10px] text-muted-foreground font-bold">{metrics.totalLeads} High-Value Leads</p>
@@ -66,7 +79,10 @@ export function QualityScoring({ metrics, trends }: QualityScoringProps) {
                 </div>
 
                 <div className="space-y-4">
-                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quality Trend Analysis</h4>
+                    <div className="flex items-center gap-2">
+                        <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quality Trend Analysis</h4>
+                        <InfoTooltip content={QUALITY_TOOLTIPS.trend} align="start" />
+                    </div>
                     <div className="h-[180px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={trends} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>

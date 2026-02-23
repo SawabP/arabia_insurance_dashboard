@@ -170,17 +170,6 @@ export function ChatInterface({ initialConversations, initialTotalCount }: ChatI
                                         <p className="text-xs text-muted-foreground">{selectedConversation?.customer_phone}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="gap-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50 ml-2"
-                                        onClick={handleAnalyze}
-                                    >
-                                        <Sparkles className="h-4 w-4" />
-                                        AI Analyze
-                                    </Button>
-                                </div>
                             </div >
 
                             {/* Messages Area */}
