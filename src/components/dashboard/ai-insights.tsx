@@ -11,9 +11,9 @@ interface AIInsightsProps {
 }
 
 const AI_INSIGHTS_TOOLTIPS = {
-    module: 'Narrative recommendations generated from dashboard metrics like resolution rate, escalation rate, lead conversion, and engagement. These are heuristic suggestions, not raw database counts.',
-    highAutonomy: 'Triggered when the AI resolution rate is above 85%, meaning most customers are handled without human escalation.',
-    escalationSpike: 'Triggered when the AI resolution rate is not above 85%, highlighting a higher share of conversations needing human help.',
+    module: 'Narrative recommendations generated from dashboard metrics like autonomous handling rate, handoff rate, lead conversion, and engagement. These are heuristic suggestions, not raw database counts.',
+    highAutonomy: 'Triggered when the AI autonomous handling rate is above 85%, meaning most customers are handled without a human handoff.',
+    escalationSpike: 'Triggered when the AI autonomous handling rate is not above 85%, highlighting a higher share of conversations needing human handoff.',
     performanceLeading: 'Triggered when total high-intent leads in the selected period are above 50, using quote/contact form intent counts.',
     uxOptimization: 'A product-improvement suggestion based on engagement behavior (messages per customer), intended to reduce friction in common journeys.',
 } as const;
@@ -35,7 +35,7 @@ export function AIInsights({ metrics, topIntents, stats }: AIInsightsProps) {
             icon: <AlertCircle className="h-4 w-4 text-amber-500" />,
             title: "Escalation Spike",
             tooltip: AI_INSIGHTS_TOOLTIPS.escalationSpike,
-            description: `Current escalation rate is ${stats.escalationRate}%. This is slightly above seasonal norms.`,
+            description: `Current handoff rate is ${stats.escalationRate}%. This is slightly above seasonal norms.`,
             recommendation: "Check 'New Get-A-Quote' intent for friction - users might be dropping off at the payment step."
         });
     }

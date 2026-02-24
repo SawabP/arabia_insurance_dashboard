@@ -25,9 +25,9 @@ const DASHBOARD_TOOLTIPS = {
     aiHealth: 'Internal AI health score from the dashboard quality index (0-100), combining automated resolution and lead conversion performance.',
     totalMessages: 'Total number of chat messages recorded in the selected date range and channel. Each row in the chats table counts as one message.',
     totalCustomers: 'Number of distinct customers in the selected range, deduplicated by phone, email, or session ID so repeat messages from the same person are counted once.',
-    escalationRate: 'Percentage of unique customers whose conversations were flagged as escalated to a human agent.',
-    aiQualityIndex: 'A custom 0-100 score that combines resolution rate and lead conversion rate. It is capped at 100 and used as a quick overall AI performance indicator.',
-    resolutionRate: 'Percentage of unique customers handled without human escalation. In this dashboard it is calculated as 100 minus escalation rate.',
+    escalationRate: 'Percentage of unique customers whose conversations were handed off to a human agent.',
+    aiQualityIndex: 'A cumulative AI-as-a-judge score that averages multiple graded conversation quality metrics (such as relevancy, accuracy, completeness, clarity, tone, and user-signal/health checks) into one overall performance number.',
+    resolutionRate: 'Percentage of unique customers handled by the AI without a human handoff. In this dashboard it is calculated as 100 minus Handoff Rate.',
     outputConversion: 'Percentage of unique customers who became high-intent leads (currently quote-form or contact-form submissions).',
     inbound: 'Messages sent by customers to the AI (records with direction = inbound).',
     outbound: 'Messages sent by the AI or system back to customers (records with direction = outbound).',
@@ -146,7 +146,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </CardContent>
                 </Card>
 
-                {/* Escalation Rate */}
+                {/* Handoff Rate */}
                 <Card className="border-l-4 border-l-amber-500 group">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between space-y-0 pb-1">
@@ -157,7 +157,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between">
                                 <div className="flex min-w-0 items-center gap-1.5">
-                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">ESCALATION RATE</p>
+                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">HANDOFF RATE</p>
                                     <InfoTooltip content={DASHBOARD_TOOLTIPS.escalationRate} />
                                 </div>
                                 <Sparkline data={kpiTrends} dataKey="escalated" color="#f59e0b" className="h-6 w-20" />
@@ -189,7 +189,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </CardContent>
                 </Card>
 
-                {/* RESOLUTION RATE (New) */}
+                {/* AUTONOMOUS HANDLING RATE (Derived) */}
                 <Card className="border-l-4 border-l-emerald-600 group bg-emerald-50/10 dark:bg-emerald-950/10 transition-all hover:bg-emerald-50/20">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between space-y-0 pb-1">
@@ -200,7 +200,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between">
                                 <div className="flex min-w-0 items-center gap-1.5">
-                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">RESOLUTION RATE</p>
+                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">AUTONOMOUS HANDLING RATE</p>
                                     <InfoTooltip content={DASHBOARD_TOOLTIPS.resolutionRate} />
                                 </div>
                                 <Sparkline data={qualityTrends} dataKey="score" color="#059669" className="h-6 w-20" />

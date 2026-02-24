@@ -13,8 +13,8 @@ interface QualityScoringProps {
 
 const QUALITY_TOOLTIPS = {
     module: 'Outcome Scoring summarizes AI performance using a weighted mix of automated resolution and lead conversion metrics.',
-    aiQualityIndex: 'A custom 0-100 score combining resolution rate and lead conversion rate, capped at 100 for easy monitoring.',
-    resolutionRate: 'Share of unique customers handled without human escalation (calculated here as 100 minus escalation rate).',
+    aiQualityIndex: 'A cumulative AI-as-a-judge score that averages multiple graded conversation metrics (for example relevancy, accuracy, completeness, clarity, tone, and conversation-health/user-signal checks) into one overall index.',
+    resolutionRate: 'Share of unique customers handled by the AI without a human handoff (calculated here as 100 minus Handoff Rate).',
     outputConversion: 'Share of unique customers who submitted high-intent actions like quote or contact forms.',
     trend: 'Daily quality score trend over time. Each bar shows the calculated AI quality score for that date.',
 } as const;
@@ -60,7 +60,7 @@ export function QualityScoring({ metrics, trends }: QualityScoringProps) {
                     <div className="space-y-1">
                         <p className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1.5">
                             <Percent className="h-3 w-3" />
-                            Resolution Rate
+                            Autonomous Handling Rate
                             <InfoTooltip content={QUALITY_TOOLTIPS.resolutionRate} />
                         </p>
                         <h3 className="text-3xl font-black">{metrics.resolutionRate}%</h3>

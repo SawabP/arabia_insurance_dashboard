@@ -13,6 +13,7 @@ services:
       DB_USER: ${DB_USER:-arabia_insurance}
       DB_PASSWORD: ${DB_PASSWORD:-aivaa@edata.ae}
       DB_NAME: ${DB_NAME:-aiva}
+      DASHBOARD_ACCESS_PASSWORD: ${DASHBOARD_ACCESS_PASSWORD:-}
     networks:
       - default
       - n8n_default
