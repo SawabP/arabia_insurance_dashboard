@@ -174,7 +174,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                             <div className="p-2 bg-indigo-600/10 rounded-lg text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
                                 <Star className="h-5 w-5" />
                             </div>
-                            <span className="text-[10px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded">NEW</span>
+                            <span
+                                className="text-[10px] font-bold bg-amber-600 text-white px-1.5 py-0.5 rounded cursor-help"
+                                title="Deprecated: this card will be replaced by the AI-as-a-Judge cumulative score based on averaged conversation grading metrics."
+                            >
+                                DEPRECATED
+                            </span>
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between">
