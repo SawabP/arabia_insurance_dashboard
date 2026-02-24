@@ -22,5 +22,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+    // Skip Next internals and any static file in /public (anything with an extension)
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 };
