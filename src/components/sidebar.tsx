@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, MessageSquare, Settings } from 'lucide-react';
+import { LayoutDashboard, LogOut, MessageSquare } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
+import { logoutAction } from '@/app/auth/actions';
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -55,15 +55,17 @@ export function Sidebar() {
                 </button>
             </div>
             <div className="p-4 border-t flex items-center gap-2">
-                <button
-                    onClick={() => navigate('/settings')}
-                    className={cn(
-                        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 text-muted-foreground hover:bg-muted hover:text-foreground flex-1 group"
-                    )}
-                >
-                    <Settings className="h-4 w-4 transition-colors group-hover:text-primary" />
-                    Settings
-                </button>
+                <form action={logoutAction} className="flex-1">
+                    <button
+                        type="submit"
+                        className={cn(
+                            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 text-muted-foreground hover:bg-muted hover:text-foreground group"
+                        )}
+                    >
+                        <LogOut className="h-4 w-4 transition-colors group-hover:text-primary" />
+                        Sign out
+                    </button>
+                </form>
                 <ThemeToggle />
             </div>
         </div>

@@ -2,40 +2,50 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import {
-    DASHBOARD_AUTH_COOKIE,
-    DASHBOARD_AUTH_COOKIE_VALUE,
-    DASHBOARD_AUTH_PASSWORD_ENV,
-    DASHBOARD_AUTH_USERNAME,
-} from '@/lib/simple-auth';
+import { BACKEND_AUTH_COOKIE } from '@/lib/backend-auth';
+import { backendRequest, BackendApiError, type LoginResponse } from '@/lib/backend-api';
 
 export async function loginAction(formData: FormData) {
-    const username = String(formData.get('username') || '').trim();
+    const email = String(formData.get('email') || '').trim();
     const password = String(formData.get('password') || '');
-    const expectedPassword = process.env[DASHBOARD_AUTH_PASSWORD_ENV];
 
-    if (!expectedPassword) {
-        redirect('/auth?error=config');
-    }
-
-    if (username !== DASHBOARD_AUTH_USERNAME || password !== expectedPassword) {
+    if (!email || !password) {
         redirect('/auth?error=invalid');
     }
 
-    const cookieStore = await cookies();
-    cookieStore.set(DASHBOARD_AUTH_COOKIE, DASHBOARD_AUTH_COOKIE_VALUE, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 60 * 12, // 12 hours
-    });
+    try {
+        const response = await backendRequest<LoginResponse>('/api/v1/auth/login', {
+            method: 'POST',
+            auth: false,
+            redirectOnUnauthorized: false,
+            body: {
+                email,
+                password,
+            },
+        });
 
-    redirect('/');
+        const cookieStore = await cookies();
+        cookieStore.set(BACKEND_AUTH_COOKIE, response.token.access_token, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            maxAge: response.token.expires_in_seconds,
+        });
+
+        redirect('/');
+    } catch (error) {
+        if (error instanceof BackendApiError && error.status === 401) {
+            redirect('/auth?error=invalid');
+        }
+
+        console.error('loginAction error:', error);
+        redirect('/auth?error=server');
+    }
 }
 
 export async function logoutAction() {
     const cookieStore = await cookies();
-    cookieStore.delete(DASHBOARD_AUTH_COOKIE);
+    cookieStore.delete(BACKEND_AUTH_COOKIE);
     redirect('/auth');
 }

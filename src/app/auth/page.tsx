@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { loginAction } from './actions';
-import { DASHBOARD_AUTH_COOKIE, DASHBOARD_AUTH_COOKIE_VALUE, DASHBOARD_AUTH_USERNAME } from '@/lib/simple-auth';
+import { getCurrentAccount } from '@/lib/backend-api';
 
 interface AuthPageProps {
     searchParams?: {
@@ -13,20 +12,21 @@ interface AuthPageProps {
     };
 }
 
-export default async function AuthPage({ searchParams }: AuthPageProps) {
-    const cookieStore = await cookies();
-    const isAuthed = cookieStore.get(DASHBOARD_AUTH_COOKIE)?.value === DASHBOARD_AUTH_COOKIE_VALUE;
+export const dynamic = 'force-dynamic';
 
-    if (isAuthed) {
+export default async function AuthPage({ searchParams }: AuthPageProps) {
+    const account = await getCurrentAccount();
+
+    if (account) {
         redirect('/');
     }
 
     const error = searchParams?.error;
     const errorMessage =
         error === 'invalid'
-            ? 'Invalid username or password.'
-            : error === 'config'
-                ? 'Auth password is not configured in the container environment.'
+            ? 'Invalid email or password.'
+            : error === 'server'
+                ? 'The dashboard could not reach the backend auth service.'
                 : null;
 
     return (
@@ -35,7 +35,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                 <CardHeader className="space-y-2">
                     <CardTitle className="text-2xl font-bold tracking-tight">Dashboard Access</CardTitle>
                     <p className="text-sm text-muted-foreground">
-                        Enter the temporary credentials to access the Arabia Insurance dashboard.
+                        Sign in with your backend account credentials to access the Arabia Insurance dashboard.
                     </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -47,13 +47,13 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
 
                     <form action={loginAction} className="space-y-4">
                         <div className="space-y-2">
-                            <label htmlFor="username" className="text-sm font-medium">Username</label>
+                            <label htmlFor="email" className="text-sm font-medium">Email</label>
                             <Input
-                                id="username"
-                                name="username"
-                                autoComplete="username"
-                                placeholder="Username"
-                                defaultValue={DASHBOARD_AUTH_USERNAME}
+                                id="email"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                placeholder="you@company.com"
                                 required
                             />
                         </div>
@@ -76,11 +76,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                     </form>
 
                     <p className="text-xs text-muted-foreground">
-                        Username: <span className="font-mono">{DASHBOARD_AUTH_USERNAME}</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                        Password is read from the Docker container environment variable{' '}
-                        <span className="font-mono">DASHBOARD_ACCESS_PASSWORD</span>.
+                        Authentication is delegated to the backend API and the returned bearer token is stored in an <span className="font-mono">httpOnly</span> cookie.
                     </p>
                     <p className="text-xs text-muted-foreground">
                         <Link href="/" className="underline underline-offset-2">Back to dashboard</Link>

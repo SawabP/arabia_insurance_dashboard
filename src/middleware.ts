@@ -1,24 +1,45 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { DASHBOARD_AUTH_COOKIE, DASHBOARD_AUTH_COOKIE_VALUE } from '@/lib/simple-auth';
+import { BACKEND_AUTH_COOKIE, buildBackendUrl } from '@/lib/backend-auth';
 
 const PUBLIC_PATHS = new Set(['/auth']);
 
-export function middleware(request: NextRequest) {
+function redirectToAuth(request: NextRequest) {
+    const response = NextResponse.redirect(new URL('/auth', request.url));
+    response.cookies.delete(BACKEND_AUTH_COOKIE);
+    return response;
+}
+
+export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (PUBLIC_PATHS.has(pathname)) {
         return NextResponse.next();
     }
 
-    const isAuthed = request.cookies.get(DASHBOARD_AUTH_COOKIE)?.value === DASHBOARD_AUTH_COOKIE_VALUE;
+    const token = request.cookies.get(BACKEND_AUTH_COOKIE)?.value;
 
-    if (isAuthed) {
-        return NextResponse.next();
+    if (!token) {
+        return redirectToAuth(request);
     }
 
-    const authUrl = new URL('/auth', request.url);
-    return NextResponse.redirect(authUrl);
+    try {
+        const response = await fetch(buildBackendUrl('/api/v1/auth/me'), {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+            },
+            cache: 'no-store',
+        });
+
+        if (response.ok) {
+            return NextResponse.next();
+        }
+    } catch (error) {
+        console.error('middleware auth check failed:', error);
+    }
+
+    return redirectToAuth(request);
 }
 
 export const config = {
