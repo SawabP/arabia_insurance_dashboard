@@ -87,55 +87,56 @@ export function Correlations({ data }: { data: CorrelationsResponse }) {
             )}
 
             {/* Frustration histogram */}
-            {histogram.length > 0 && (
-                <div>
-                    <SectionLabel>Frustration score distribution</SectionLabel>
-                    <p className="text-xs text-muted-foreground mb-1">How conversations cluster by frustration level</p>
-                    <div className="flex gap-1.5 items-end h-[120px] pb-1 border-b border-border">
-                        {histogram.map((b, i) => (
-                            <div key={b.bucket_label} className="flex-1 flex flex-col items-center justify-end gap-0.5">
-                                <div className="text-[11px] font-medium">{b.count}</div>
-                                <div
-                                    className="w-full rounded-t transition-all duration-500"
-                                    style={{
-                                        height: `${Math.round((b.count / maxHistCount) * 100)}%`,
-                                        backgroundColor: FRUSTRATION_COLORS[i] ?? FRUSTRATION_COLORS[FRUSTRATION_COLORS.length - 1],
-                                    }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                    <div className="flex gap-1.5 mt-1">
-                        {histogram.map((b) => (
-                            <div key={b.bucket_label} className="flex-1 text-center text-[10px] text-muted-foreground">{b.bucket_label}</div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {histogram.length > 0 && (() => {
+                const totalHist = histogram.reduce((s, b) => s + b.count, 0);
+                return (
+                    <Card>
+                        <CardContent className="p-5">
+                            <SectionLabel>Frustration score distribution</SectionLabel>
+                            <p className="text-xs text-muted-foreground mb-4">How conversations cluster by frustration level</p>
 
-            {/* Story cards */}
-            {storyCards.length > 0 && (
-                <div>
-                    <SectionLabel>Story insights</SectionLabel>
-                    <div className="grid grid-cols-2 gap-3">
-                        {storyCards.map((c) => {
-                            const sev = SEVERITY_STYLES[c.severity] ?? SEVERITY_STYLES.info;
-                            const borderColor = c.severity === 'critical' ? 'border-l-red-500' : c.severity === 'warning' ? 'border-l-amber-500' : 'border-l-blue-500';
-                            return (
-                                <Card key={c.code} className={`border-l-4 ${borderColor}`}>
-                                    <CardContent className="p-4">
-                                        <div className="text-[13px] font-medium mb-1">{c.title}</div>
-                                        {c.metric_value != null && (
-                                            <div className={`text-xl font-medium mb-1 ${sev.text}`}>{c.metric_value}</div>
-                                        )}
-                                        <div className="text-xs text-muted-foreground leading-relaxed">{c.explanation}</div>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
+                            <div className="flex gap-2 items-end" style={{ height: 140 }}>
+                                {histogram.map((b, i) => {
+                                    const barH = maxHistCount > 0 ? Math.max(Math.round((b.count / maxHistCount) * 130), 6) : 6;
+                                    const sharePct = totalHist > 0 ? ((b.count / totalHist) * 100).toFixed(1) : '0';
+                                    const color = FRUSTRATION_COLORS[i] ?? FRUSTRATION_COLORS[FRUSTRATION_COLORS.length - 1];
+                                    return (
+                                        <div key={b.bucket_label} className="flex-1 flex flex-col items-center justify-end group/bar">
+                                            <div className="opacity-0 group-hover/bar:opacity-100 transition-opacity duration-150 mb-1 px-2 py-1 rounded-md bg-popover border border-border shadow-sm whitespace-nowrap">
+                                                <div className="text-[10px] font-bold text-popover-foreground text-center">{b.count}</div>
+                                                <div className="text-[9px] text-muted-foreground text-center">{sharePct}%</div>
+                                            </div>
+                                            <div
+                                                className="w-full rounded-t-md transition-all duration-500 ease-out relative overflow-hidden group-hover/bar:brightness-110"
+                                                style={{ height: barH, backgroundColor: color }}
+                                            >
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/10" />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="flex gap-2 mt-2 pt-2 border-t border-border">
+                                {histogram.map((b, i) => {
+                                    const color = FRUSTRATION_COLORS[i] ?? FRUSTRATION_COLORS[FRUSTRATION_COLORS.length - 1];
+                                    return (
+                                        <div key={b.bucket_label} className="flex-1 text-center">
+                                            <div className="flex items-center justify-center gap-1 mb-0.5">
+                                                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+                                                <span className="text-[11px] font-medium text-foreground">{b.bucket_label}</span>
+                                            </div>
+                                            <div className="text-[10px] text-muted-foreground">{b.count} convos</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </CardContent>
+                    </Card>
+                );
+            })()}
+
+            {/* Story cards -- hidden for now, data still fetched */}
         </div>
     );
 }

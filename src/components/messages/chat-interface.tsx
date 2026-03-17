@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Conversation, Message, getConversationMessages, getConversations } from '@/app/actions/messages';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -15,7 +16,9 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ initialConversations, initialTotalCount }: ChatInterfaceProps) {
-    const [selectedConversationKey, setSelectedConversationKey] = useState<string | null>(initialConversations[0]?.conversationKey || null);
+    const searchParams = useSearchParams();
+    const conversationParam = searchParams.get('conversation');
+    const [selectedConversationKey, setSelectedConversationKey] = useState<string | null>(conversationParam || initialConversations[0]?.conversationKey || null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(false);
     const [convLoading, setConvLoading] = useState(false);

@@ -37,14 +37,21 @@ export default async function AiPerformancePage({ searchParams }: PageProps) {
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-bold tracking-tight">AI Agent Performance</h2>
-                    <p className="text-sm text-muted-foreground">
-                        conversation_grades dashboard
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium">
+                        <div className="flex items-center gap-1.5">
+                            <span className="inline-flex h-2 w-2 rounded-full bg-primary/60" />
+                            {agentPulse.total_graded_customer_days} graded conversations
+                        </div>
                         {agentPulse.freshness.latest_successful_window_end_date && (
-                            <span className="ml-2">
-                                -- data through {agentPulse.freshness.latest_successful_window_end_date}
-                            </span>
+                            <div className="flex items-center gap-1.5 pl-3 border-l border-border">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                                </span>
+                                Data through {agentPulse.freshness.latest_successful_window_end_date}
+                            </div>
                         )}
-                    </p>
+                    </div>
                 </div>
                 <DateRangePicker />
             </div>

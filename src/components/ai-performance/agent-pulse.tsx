@@ -18,19 +18,28 @@ const TOOLTIP_STYLE = {
     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
 };
 
+function r1(v: number) { return +v.toFixed(1); }
+
 export function AgentPulse({ data }: { data: AgentPulseResponse }) {
     const escalation = data.escalation_breakdown ?? [];
     const totalEsc = escalation.reduce((s, e) => s + e.count, 0);
+    const dims = {
+        relevancy: r1(data.dimension_averages.relevancy),
+        accuracy: r1(data.dimension_averages.accuracy),
+        completeness: r1(data.dimension_averages.completeness),
+        clarity: r1(data.dimension_averages.clarity),
+        tone: r1(data.dimension_averages.tone),
+    };
 
     return (
         <div className="space-y-6">
             {/* Score ring + dimension bars */}
             <Card>
                 <CardContent className="p-6 flex gap-6 items-start">
-                    <ScoreRing score={data.overall_composite_score} />
+                    <ScoreRing score={+data.overall_composite_score.toFixed(1)} />
                     <div className="flex-1">
                         <SectionLabel>AI performance dimensions</SectionLabel>
-                        <DimensionBars dimensions={data.dimension_averages} />
+                        <DimensionBars dimensions={dims} />
                     </div>
                 </CardContent>
             </Card>
@@ -40,9 +49,9 @@ export function AgentPulse({ data }: { data: AgentPulseResponse }) {
                 <SectionLabel>Conversation health</SectionLabel>
                 <div className="grid grid-cols-3 gap-3">
                     {[
-                        { label: 'Resolved', value: `${data.health.resolution_rate_pct.toFixed(0)}%`, cls: 'text-emerald-700 dark:text-emerald-400' },
-                        { label: 'Repetition avg', value: data.health.avg_repetition_score.toFixed(1), cls: 'text-amber-700 dark:text-amber-400' },
-                        { label: 'Loops detected', value: `${data.health.loop_detected_rate_pct.toFixed(0)}%`, cls: 'text-red-700 dark:text-red-400' },
+                        { label: 'Resolved', value: `${r1(data.health.resolution_rate_pct)}%`, cls: 'text-emerald-700 dark:text-emerald-400' },
+                        { label: 'Repetition avg', value: r1(data.health.avg_repetition_score), cls: 'text-amber-700 dark:text-amber-400' },
+                        { label: 'Loops detected', value: `${r1(data.health.loop_detected_rate_pct)}%`, cls: 'text-red-700 dark:text-red-400' },
                     ].map((c) => (
                         <Card key={c.label}>
                             <CardContent className="p-4">
@@ -75,7 +84,7 @@ export function AgentPulse({ data }: { data: AgentPulseResponse }) {
                                     className="w-2 h-2 rounded-sm"
                                     style={{ backgroundColor: ESCALATION_COLORS[e.escalation_type] ?? GRADE_COLORS.gray }}
                                 />
-                                {e.escalation_type} {e.share_pct.toFixed(0)}%
+                                {e.escalation_type} {r1(e.share_pct)}%
                             </span>
                         ))}
                     </div>
@@ -89,19 +98,19 @@ export function AgentPulse({ data }: { data: AgentPulseResponse }) {
                     <Card><CardContent className="p-4">
                         <div className="text-xs text-muted-foreground mb-1">Satisfaction</div>
                         <div className="text-xl font-medium text-emerald-700 dark:text-emerald-400">
-                            {data.user_signals.avg_satisfaction_score.toFixed(1)}
+                            {r1(data.user_signals.avg_satisfaction_score)}
                         </div>
                     </CardContent></Card>
                     <Card><CardContent className="p-4">
                         <div className="text-xs text-muted-foreground mb-1">Frustration</div>
                         <div className="text-xl font-medium text-red-700 dark:text-red-400">
-                            {data.user_signals.avg_frustration_score.toFixed(1)}
+                            {r1(data.user_signals.avg_frustration_score)}
                         </div>
                     </CardContent></Card>
                     <Card><CardContent className="p-4">
                         <div className="text-xs text-muted-foreground mb-1">Genuine interactions</div>
                         <div className="text-xl font-medium">
-                            {data.user_signals.user_relevancy_rate_pct.toFixed(0)}%
+                            {r1(data.user_signals.user_relevancy_rate_pct)}%
                         </div>
                     </CardContent></Card>
                 </div>
