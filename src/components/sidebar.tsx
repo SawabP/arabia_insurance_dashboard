@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, LogOut, MessageSquare } from 'lucide-react';
+import { BrainCircuit, LayoutDashboard, LogOut, MessageSquare } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 import { logoutAction } from '@/app/auth/actions';
 
@@ -52,6 +52,18 @@ export function Sidebar() {
                 >
                     <MessageSquare className={cn("h-4 w-4 transition-colors", pathname === "/messages" ? "text-primary-foreground" : "group-hover:text-primary")} />
                     Messages
+                </button>
+                <button
+                    onClick={() => navigate('/ai-performance')}
+                    className={cn(
+                        "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group",
+                        pathname === "/ai-performance"
+                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                >
+                    <BrainCircuit className={cn("h-4 w-4 transition-colors", pathname === "/ai-performance" ? "text-primary-foreground" : "group-hover:text-primary")} />
+                    AI Performance
                 </button>
             </div>
             <div className="p-4 border-t flex items-center gap-2">
