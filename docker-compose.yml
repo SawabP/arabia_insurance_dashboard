@@ -7,7 +7,7 @@ services:
     environment:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: "1"
-      AIVA_BACKEND_URL: ${AIVA_BACKEND_URL:-http://127.0.0.1:8002}
+      AIVA_BACKEND_URL: ${AIVA_BACKEND_URL:-http://aiva-backend:8000}
     networks:
       - default
       - n8n_default
