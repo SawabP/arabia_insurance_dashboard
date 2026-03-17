@@ -11,6 +11,7 @@ import { GRADE_COLORS, resColor } from './grade-colors';
 import { SectionLabel } from './section-label';
 import { MiniPerf } from './mini-perf';
 import { ScoreDot } from './score-dot';
+import { HourCellTooltip } from './hour-cell-tooltip';
 
 const TOOLTIP_STYLE = {
     backgroundColor: 'hsl(var(--card))',
@@ -38,26 +39,32 @@ export function DailyTimeline({ data }: { data: DailyTimelineResponse }) {
                     <p className="text-xs text-muted-foreground mb-2">Color = resolution rate, circle size = conversation volume</p>
                     <div className="grid grid-cols-[repeat(24,1fr)] gap-0.5 min-w-[600px]">
                         {hourly.map((h) => {
-                            const sz = Math.max(6, Math.round((h.conversation_volume / maxVol) * 28));
+                            const noData = h.conversation_volume === 0;
+                            const sz = noData ? 0 : Math.max(6, Math.round((h.conversation_volume / maxVol) * 28));
                             return (
                                 <div
                                     key={h.hour}
-                                    className="aspect-square rounded-sm relative cursor-default"
-                                    style={{ backgroundColor: resColor(h.resolution_rate_pct) }}
-                                    title={`${h.hour}:00 -- ${h.resolution_rate_pct.toFixed(0)}% res, ${h.conversation_volume} convos`}
+                                    className={`aspect-square rounded-sm relative group/cell ${noData ? 'bg-muted' : ''}`}
+                                    style={noData ? undefined : { backgroundColor: resColor(h.resolution_rate_pct) }}
                                 >
-                                    <div
-                                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/15 dark:bg-white/20"
-                                        style={{ width: sz, height: sz }}
-                                    />
+                                    {!noData && (
+                                        <div
+                                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/15 dark:bg-white/20"
+                                            style={{ width: sz, height: sz }}
+                                        />
+                                    )}
+                                    <HourCellTooltip hour={h.hour} volume={h.conversation_volume} resolutionPct={h.resolution_rate_pct} />
                                 </div>
                             );
                         })}
                     </div>
                     <div className="grid grid-cols-[repeat(24,1fr)] gap-0.5 mt-0.5 text-[9px] text-muted-foreground text-center">
-                        {hourly.map((h) => (
-                            <div key={h.hour}>{h.hour % 3 === 0 ? `${h.hour}:00` : ''}</div>
-                        ))}
+                        {hourly.map((h) => {
+                            if (h.hour % 3 !== 0) return <div key={h.hour} />;
+                            const h12 = h.hour % 12 || 12;
+                            const p = h.hour < 12 ? 'a' : 'p';
+                            return <div key={h.hour}>{h12}{p}</div>;
+                        })}
                     </div>
                     <div className="flex items-center gap-2 mt-2 text-[11px] text-muted-foreground">
                         <span>Low</span>
