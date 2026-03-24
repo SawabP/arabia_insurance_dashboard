@@ -11,9 +11,10 @@ export function DateRangePicker() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Default to Last 30 Days if no params
+    // Default to Last 30 Days if no params; end date capped to yesterday (backend constraint)
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const defaultStart = searchParams.get('startDate') || format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
-    const defaultEnd = searchParams.get('endDate') || format(new Date(), 'yyyy-MM-dd');
+    const defaultEnd = searchParams.get('endDate') || format(yesterday, 'yyyy-MM-dd');
 
     const [startDate, setStartDate] = useState(defaultStart);
     const [endDate, setEndDate] = useState(defaultEnd);
@@ -24,7 +25,7 @@ export function DateRangePicker() {
         if (!searchParams.get('startDate')) {
             // Apply default 30 days if URL is empty
             setStartDate(format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'));
-            setEndDate(format(new Date(), 'yyyy-MM-dd'));
+            setEndDate(format(yesterday, 'yyyy-MM-dd'));
         } else {
             setStartDate(searchParams.get('startDate') || '');
             setEndDate(searchParams.get('endDate') || '');
@@ -45,8 +46,9 @@ export function DateRangePicker() {
 
     const applyPreset = (preset: '7days' | '30days' | 'thisMonth' | 'lastMonth') => {
         const now = new Date();
+        const yest = new Date(now.getTime() - 24 * 60 * 60 * 1000);
         let start = new Date();
-        let end = new Date();
+        let end = yest;
 
         switch (preset) {
             case '7days':

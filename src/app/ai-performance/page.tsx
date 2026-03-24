@@ -23,8 +23,9 @@ export default async function AiPerformancePage({ searchParams }: PageProps) {
     const startDate = searchParams.startDate ? new Date(searchParams.startDate) : eightDaysAgo;
     startDate.setHours(0, 0, 0, 0);
 
-    const endDate = searchParams.endDate ? new Date(searchParams.endDate) : yesterday;
-    endDate.setHours(0, 0, 0, 0);
+    const rawEnd = searchParams.endDate ? new Date(searchParams.endDate) : yesterday;
+    rawEnd.setHours(0, 0, 0, 0);
+    const endDate = rawEnd > yesterday ? yesterday : rawEnd;
 
     const [agentPulse, correlations, dailyTimeline] = await Promise.all([
         getAgentPulse(startDate, endDate),
