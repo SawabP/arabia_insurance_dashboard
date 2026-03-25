@@ -183,14 +183,14 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
             <div className="ml-auto flex items-center gap-1.5 text-xs">
                 <span className="text-muted-foreground font-medium">Sort:</span>
                 <Select
-                    value={filters.sort_by ?? 'grade_date'}
-                    onValueChange={(v) => update({ sort_by: v })}
+                    value={filters.sort_by ?? ''}
+                    onValueChange={(v) => update({ sort_by: v || null })}
                 >
                     <SelectTrigger className="h-8 text-xs w-[150px]">
-                        <SelectValue />
+                        <SelectValue placeholder="Default" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="grade_date">Date</SelectItem>
+                        <SelectItem value="">Default</SelectItem>
                         <SelectItem value="frustration_score">Frustration</SelectItem>
                         <SelectItem value="accuracy_score">Accuracy</SelectItem>
                     </SelectContent>

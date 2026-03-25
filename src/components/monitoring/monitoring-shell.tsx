@@ -26,7 +26,7 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
         accuracy_max: null,
         intent_codes: [],
         highlights_only: false,
-        sort_by: 'grade_date',
+        sort_by: null,
         sort_direction: 'desc',
     });
 

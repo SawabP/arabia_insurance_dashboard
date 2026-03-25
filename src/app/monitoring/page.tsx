@@ -21,17 +21,23 @@ export default async function MonitoringPage({ searchParams }: PageProps) {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
 
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(today.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    // Cap end_date to yesterday -- backend requires end_date <= previous GST day
+    const rawEnd = searchParams.endDate ? new Date(searchParams.endDate) : yesterday;
+    rawEnd.setHours(0, 0, 0, 0);
+    const endDateObj = rawEnd > yesterday ? yesterday : rawEnd;
 
     const startDate = searchParams.startDate ?? formatDate(sevenDaysAgo);
-    const endDate = searchParams.endDate ?? formatDate(yesterday);
+    const endDate = formatDate(endDateObj);
 
     const initialData = await listMonitoringConversations({
         start_date: startDate,
         end_date: endDate,
-        sort_by: 'grade_date',
         sort_direction: 'desc',
         limit: 50,
         offset: 0,
