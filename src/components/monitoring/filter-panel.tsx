@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -31,6 +32,51 @@ const INTENT_TAXONOMY = [
         { code: 'wasteful', label: 'Wasteful' },
     ]},
 ];
+
+function IntentDropdown({ selectedCodes, onToggle }: { selectedCodes: string[]; onToggle: (code: string) => void }) {
+    const [open, setOpen] = useState(false);
+    const label = selectedCodes.length ? `${selectedCodes.length} intent(s)` : 'All intents';
+
+    return (
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen((v) => !v)}
+                className="flex h-8 items-center justify-between gap-1 rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background min-w-[150px]"
+            >
+                <span className="text-muted-foreground">{label}</span>
+                <span className="text-muted-foreground opacity-50">▾</span>
+            </button>
+            {open && (
+                <>
+                    <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+                    <div className="absolute top-full mt-1 left-0 z-20 min-w-[220px] max-h-[320px] overflow-y-auto rounded-md border bg-popover shadow-md p-1">
+                        {INTENT_TAXONOMY.map((group) => (
+                            <div key={group.category}>
+                                <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                    {group.category}
+                                </div>
+                                {group.intents.map((intent) => (
+                                    <label
+                                        key={intent.code}
+                                        className="flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted rounded text-sm"
+                                    >
+                                        <Checkbox
+                                            checked={selectedCodes.includes(intent.code)}
+                                            onCheckedChange={() => onToggle(intent.code)}
+                                            className="h-3.5 w-3.5"
+                                        />
+                                        {intent.label}
+                                    </label>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
 
 interface FilterPanelProps {
     filters: MonitoringFilters;
@@ -135,38 +181,13 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
 
             <div className="w-px h-6 bg-border" />
 
-            {/* Intent multi-select (collapsible) */}
-            <Select
-                value={filters.intent_codes[0] ?? ''}
-                onValueChange={(v) => toggleIntent(v)}
-            >
-                <SelectTrigger className="h-8 text-xs w-[150px]">
-                    <SelectValue placeholder={filters.intent_codes.length ? `${filters.intent_codes.length} intent(s)` : 'All intents'} />
-                </SelectTrigger>
-                <SelectContent>
-                    {INTENT_TAXONOMY.map((group) => (
-                        <div key={group.category}>
-                            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                {group.category}
-                            </div>
-                            {group.intents.map((intent) => (
-                                <div
-                                    key={intent.code}
-                                    className="flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted text-sm"
-                                    onClick={(e) => { e.preventDefault(); toggleIntent(intent.code); }}
-                                >
-                                    <Checkbox
-                                        checked={filters.intent_codes.includes(intent.code)}
-                                        onCheckedChange={() => toggleIntent(intent.code)}
-                                        className="h-3.5 w-3.5"
-                                    />
-                                    {intent.label}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </SelectContent>
-            </Select>
+            {/* Intent filter -- checkboxes in a popover-style dropdown */}
+            <div className="relative">
+                <IntentDropdown
+                    selectedCodes={filters.intent_codes}
+                    onToggle={toggleIntent}
+                />
+            </div>
 
             {/* Highlights only toggle */}
             <label className="flex items-center gap-1.5 cursor-pointer">
@@ -183,14 +204,14 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
             <div className="ml-auto flex items-center gap-1.5 text-xs">
                 <span className="text-muted-foreground font-medium">Sort:</span>
                 <Select
-                    value={filters.sort_by ?? ''}
-                    onValueChange={(v) => update({ sort_by: v || null })}
+                    value={filters.sort_by ?? 'default'}
+                    onValueChange={(v) => update({ sort_by: v === 'default' ? null : v })}
                 >
                     <SelectTrigger className="h-8 text-xs w-[150px]">
-                        <SelectValue placeholder="Default" />
+                        <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">Default</SelectItem>
+                        <SelectItem value="default">Default order</SelectItem>
                         <SelectItem value="frustration_score">Frustration</SelectItem>
                         <SelectItem value="accuracy_score">Accuracy</SelectItem>
                     </SelectContent>
