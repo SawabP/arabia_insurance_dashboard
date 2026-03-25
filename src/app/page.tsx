@@ -57,7 +57,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ]);
 
     return (
-        <div className="flex-1 space-y-6 p-8">
+        <div className="flex-1 space-y-6 p-8 overflow-y-auto">
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-bold tracking-tight">AIVA Control Center</h2>

@@ -54,7 +54,7 @@ export default async function AiPerformancePage({ searchParams }: PageProps) {
     ]);
 
     return (
-        <div className="flex-1 space-y-6 p-8">
+        <div className="flex-1 space-y-6 p-8 overflow-y-auto">
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-bold tracking-tight">AI Agent Performance</h2>
