@@ -3,19 +3,31 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { AgentPulseResponse, CorrelationsResponse, DailyTimelineResponse } from '@/lib/grades-types';
+import type { ScoreTrendResponse, OutcomeTrendResponse, IntentDistributionResponse, IntentTrendResponse } from '@/lib/metrics-types';
 import { AgentPulse } from './agent-pulse';
 import { Correlations } from './correlations';
 import { DailyTimeline } from './daily-timeline';
+import { TrendsTab } from './trends-tab';
 
-const TABS = ['Agent Pulse', 'Correlations', 'Daily Timeline'] as const;
+const TABS = ['Agent Pulse', 'Correlations', 'Daily Timeline', 'Trends'] as const;
 
 interface Props {
     agentPulse: AgentPulseResponse;
+    scoreTrends: ScoreTrendResponse;
+    intentDistribution: IntentDistributionResponse;
     correlations: CorrelationsResponse;
     dailyTimeline: DailyTimelineResponse;
+    outcomeTrends: OutcomeTrendResponse;
+    outcomeTrendsPrev: OutcomeTrendResponse;
+    intentDistributionPrev: IntentDistributionResponse;
+    intentTrend: IntentTrendResponse;
 }
 
-export function AiPerformanceDashboard({ agentPulse, correlations, dailyTimeline }: Props) {
+export function AiPerformanceDashboard({
+    agentPulse, scoreTrends, intentDistribution,
+    correlations, dailyTimeline,
+    outcomeTrends, outcomeTrendsPrev, intentDistributionPrev, intentTrend,
+}: Props) {
     const [activeTab, setActiveTab] = useState(0);
 
     return (
@@ -37,9 +49,18 @@ export function AiPerformanceDashboard({ agentPulse, correlations, dailyTimeline
                 ))}
             </div>
 
-            {activeTab === 0 && <AgentPulse data={agentPulse} />}
+            {activeTab === 0 && <AgentPulse data={agentPulse} scoreTrends={scoreTrends} intentDistribution={intentDistribution} />}
             {activeTab === 1 && <Correlations data={correlations} />}
             {activeTab === 2 && <DailyTimeline data={dailyTimeline} />}
+            {activeTab === 3 && (
+                <TrendsTab
+                    outcomeTrends={outcomeTrends}
+                    outcomeTrendsPrev={outcomeTrendsPrev}
+                    intentDistribution={intentDistribution}
+                    intentDistributionPrev={intentDistributionPrev}
+                    intentTrend={intentTrend}
+                />
+            )}
         </div>
     );
 }

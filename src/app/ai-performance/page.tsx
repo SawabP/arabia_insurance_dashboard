@@ -1,4 +1,7 @@
-import { getAgentPulse, getCorrelations, getDailyTimeline } from '@/app/actions/grades';
+import {
+    getAgentPulse, getCorrelations, getDailyTimeline,
+    getScoreTrends, getOutcomeTrends, getMetricsIntentDistribution, getMetricsIntentTrend,
+} from '@/app/actions/grades';
 import { AiPerformanceDashboard } from '@/components/ai-performance/ai-performance-dashboard';
 import { DateRangePicker } from '@/components/dashboard/date-range-picker';
 
@@ -27,10 +30,27 @@ export default async function AiPerformancePage({ searchParams }: PageProps) {
     rawEnd.setHours(0, 0, 0, 0);
     const endDate = rawEnd > yesterday ? yesterday : rawEnd;
 
-    const [agentPulse, correlations, dailyTimeline] = await Promise.all([
+    // Compute previous period (same length, offset backwards)
+    const windowMs = endDate.getTime() - startDate.getTime();
+    const prevEnd = new Date(startDate.getTime() - 24 * 60 * 60 * 1000); // day before current start
+    prevEnd.setHours(0, 0, 0, 0);
+    const prevStart = new Date(prevEnd.getTime() - windowMs);
+    prevStart.setHours(0, 0, 0, 0);
+
+    const [
+        agentPulse, correlations, dailyTimeline,
+        scoreTrends, outcomeTrends, outcomeTrendsPrev,
+        intentDistribution, intentDistributionPrev, intentTrend,
+    ] = await Promise.all([
         getAgentPulse(startDate, endDate),
         getCorrelations(startDate, endDate),
         getDailyTimeline(endDate),
+        getScoreTrends(startDate, endDate),
+        getOutcomeTrends(startDate, endDate),
+        getOutcomeTrends(prevStart, prevEnd),
+        getMetricsIntentDistribution(startDate, endDate),
+        getMetricsIntentDistribution(prevStart, prevEnd),
+        getMetricsIntentTrend(startDate, endDate),
     ]);
 
     return (
@@ -59,8 +79,14 @@ export default async function AiPerformancePage({ searchParams }: PageProps) {
 
             <AiPerformanceDashboard
                 agentPulse={agentPulse}
+                scoreTrends={scoreTrends}
+                intentDistribution={intentDistribution}
                 correlations={correlations}
                 dailyTimeline={dailyTimeline}
+                outcomeTrends={outcomeTrends}
+                outcomeTrendsPrev={outcomeTrendsPrev}
+                intentDistributionPrev={intentDistributionPrev}
+                intentTrend={intentTrend}
             />
         </div>
     );
