@@ -1,26 +1,25 @@
 'use client';
 
-import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import type { AgentPulseResponse } from '@/lib/grades-types';
+import type { ScoreTrendResponse } from '@/lib/metrics-types';
+import type { IntentDistributionResponse } from '@/lib/metrics-types';
 import { GRADE_COLORS, ESCALATION_COLORS, SEVERITY_STYLES } from './grade-colors';
 import { ScoreRing } from './score-ring';
 import { DimensionBars } from './dimension-bars';
 import { SectionLabel } from './section-label';
-
-const TOOLTIP_STYLE = {
-    backgroundColor: 'hsl(var(--card))',
-    color: 'hsl(var(--foreground))',
-    borderRadius: '8px',
-    border: '1px solid hsl(var(--border))',
-    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-};
+import { ScoreTrendsChart } from './score-trends-chart';
+import { IntentDistribution } from './intent-distribution';
 
 function r1(v: number) { return +v.toFixed(1); }
 
-export function AgentPulse({ data }: { data: AgentPulseResponse }) {
+interface AgentPulseProps {
+    data: AgentPulseResponse;
+    scoreTrends: ScoreTrendResponse;
+    intentDistribution: IntentDistributionResponse;
+}
+
+export function AgentPulse({ data, scoreTrends, intentDistribution }: AgentPulseProps) {
     const escalation = data.escalation_breakdown ?? [];
     const totalEsc = escalation.reduce((s, e) => s + e.count, 0);
     const dims = {
@@ -116,60 +115,11 @@ export function AgentPulse({ data }: { data: AgentPulseResponse }) {
                 </div>
             </div>
 
-            {/* Trend chart */}
-            {data.trend_points && data.trend_points.length > 0 && (
-                <div>
-                    <SectionLabel>Performance trend</SectionLabel>
-                    <div className="flex gap-4 mb-2 text-[11px] text-muted-foreground">
-                        {[
-                            { color: GRADE_COLORS.green, label: 'Satisfaction' },
-                            { color: GRADE_COLORS.red, label: 'Frustration' },
-                            { color: GRADE_COLORS.blue, label: 'Overall perf' },
-                        ].map((l) => (
-                            <span key={l.label} className="flex items-center gap-1">
-                                <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-                                {l.label}
-                            </span>
-                        ))}
-                    </div>
-                    <div className="h-[220px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={data.trend_points} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
-                                <XAxis
-                                    dataKey="date"
-                                    stroke="currentColor" opacity={0.5} fontSize={11}
-                                    tickLine={false} axisLine={false}
-                                    tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                />
-                                <YAxis
-                                    domain={[0, 10]} stroke="currentColor" opacity={0.5}
-                                    fontSize={11} tickLine={false} axisLine={false}
-                                />
-                                <Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={{ color: 'hsl(var(--foreground))' }} />
-                                <Line type="monotone" dataKey="satisfaction_score" name="Satisfaction" stroke={GRADE_COLORS.green} strokeWidth={2} dot={{ r: 3 }} />
-                                <Line type="monotone" dataKey="frustration_score" name="Frustration" stroke={GRADE_COLORS.red} strokeWidth={2} dot={{ r: 3 }} />
-                                <Line type="monotone" dataKey="overall_composite_score" name="Overall" stroke={GRADE_COLORS.blue} strokeWidth={2} dot={{ r: 3 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            )}
+            {/* Per-dimension score trends */}
+            <ScoreTrendsChart data={scoreTrends} />
 
-            {/* Top intents */}
-            {data.top_intents && data.top_intents.length > 0 && (
-                <div>
-                    <SectionLabel>Top intents</SectionLabel>
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-2">
-                        {data.top_intents.map((t) => (
-                            <div key={t.intent_code} className="bg-muted/50 rounded-lg p-3 text-center">
-                                <div className="text-lg font-medium leading-tight">{t.count}</div>
-                                <div className="text-[11px] text-muted-foreground mt-0.5">{t.intent_label}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {/* Categorized intent distribution */}
+            <IntentDistribution data={intentDistribution} />
 
             {/* Attention signals */}
             {data.attention_signals && data.attention_signals.length > 0 && (
