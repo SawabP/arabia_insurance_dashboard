@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { BrainCircuit, LayoutDashboard, LogOut, MessageSquare } from 'lucide-react';
+import { BrainCircuit, LayoutDashboard, LogOut, Eye } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 import { logoutAction } from '@/app/auth/actions';
 
@@ -42,22 +42,22 @@ export function Sidebar() {
                     Dashboard
                 </button>
                 <button
-                    onClick={() => navigate('/messages')}
+                    onClick={() => navigate('/monitoring')}
                     className={cn(
                         "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group",
-                        pathname === "/messages"
+                        pathname.startsWith("/monitoring")
                             ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                             : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                 >
-                    <MessageSquare className={cn("h-4 w-4 transition-colors", pathname === "/messages" ? "text-primary-foreground" : "group-hover:text-primary")} />
-                    Messages
+                    <Eye className={cn("h-4 w-4 transition-colors", pathname.startsWith("/monitoring") ? "text-primary-foreground" : "group-hover:text-primary")} />
+                    Monitoring
                 </button>
                 <button
                     onClick={() => navigate('/ai-performance')}
                     className={cn(
                         "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group",
-                        pathname === "/ai-performance"
+                        pathname.startsWith("/ai-performance")
                             ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                             : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
