@@ -1,8 +1,7 @@
-import React from 'react';
 import { format, parseISO } from 'date-fns';
-import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { TranscriptMessage } from '@/lib/monitoring-types';
+import { cn } from '@/lib/utils';
 
 interface TranscriptViewProps {
     messages: TranscriptMessage[];
@@ -10,61 +9,58 @@ interface TranscriptViewProps {
 
 function isInbound(role: string): boolean {
     const lower = role.toLowerCase();
-    return (
-        lower.includes('customer') ||
-        lower.includes('user') ||
-        lower.includes('inbound')
-    );
+    return lower.includes('customer') || lower.includes('user') || lower.includes('inbound');
+}
+
+function formatTime(value: string) {
+    try {
+        return format(parseISO(value), 'HH:mm');
+    } catch {
+        return '';
+    }
+}
+
+function roleLabel(role: string) {
+    if (isInbound(role)) return 'Customer';
+    if (role.toLowerCase().includes('assistant') || role.toLowerCase().includes('bot')) return 'Assistant';
+    return role;
 }
 
 export function TranscriptView({ messages }: TranscriptViewProps) {
     if (messages.length === 0) {
         return (
-            <div className="flex items-center justify-center h-[400px]">
-                <p className="text-muted-foreground text-sm">No transcript available.</p>
+            <div className="flex h-full items-center justify-center px-6 py-16">
+                <p className="text-sm text-[#8B8796]">No transcript is available for this conversation.</p>
             </div>
         );
     }
 
     return (
-        <ScrollArea className="h-[400px]">
-            <div className="flex flex-col gap-3 p-4 h-[400px] overflow-y-auto">
+        <ScrollArea className="h-full">
+            <div className="flex min-h-full flex-col gap-4 px-6 py-5">
                 {messages.map((message, index) => {
                     const inbound = isInbound(message.role);
-
-                    let formattedTime = '';
-                    try {
-                        formattedTime = format(parseISO(message.created_at), 'HH:mm');
-                    } catch {
-                        formattedTime = '';
-                    }
+                    const time = formatTime(message.created_at);
 
                     return (
                         <div
-                            key={index}
-                            className={cn(
-                                'flex flex-col max-w-[75%]',
-                                inbound ? 'items-start self-start' : 'items-end self-end'
-                            )}
+                            key={`${message.created_at}-${index}`}
+                            className={cn('flex flex-col gap-1', inbound ? 'items-start' : 'items-end')}
                         >
-                            <span className="text-[10px] uppercase font-semibold text-muted-foreground mb-1 px-1">
-                                {message.role}
+                            <span className="px-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9C9889]">
+                                {roleLabel(message.role)}
                             </span>
                             <div
                                 className={cn(
-                                    'px-3 py-2 text-sm leading-relaxed',
+                                    'max-w-[78%] rounded-2xl px-4 py-3 text-[13px] leading-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
                                     inbound
-                                        ? 'bg-muted rounded-2xl rounded-tl-none'
-                                        : 'bg-primary/10 rounded-2xl rounded-tr-none'
+                                        ? 'rounded-tl-sm border border-[#F0EDE8] bg-[#FAFAF8] text-[#1A1917]'
+                                        : 'rounded-tr-sm border border-[#DBEAFE] bg-[#EFF6FF] text-[#1E3A8A]',
                                 )}
                             >
                                 <p className="whitespace-pre-wrap break-words">{message.content}</p>
                             </div>
-                            {formattedTime && (
-                                <span className="text-[10px] text-muted-foreground mt-1 px-1">
-                                    {formattedTime}
-                                </span>
-                            )}
+                            {time && <span className="px-1 text-[10px] font-medium text-[#B0AAA0]">{time}</span>}
                         </div>
                     );
                 })}

@@ -1,23 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Check, Minus, X } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { MonitoringConversationDetail } from '@/lib/monitoring-types';
 import { HighlightBadge } from './highlight-badge';
 import { GradePanel } from './grade-panel';
 import { TranscriptView } from './transcript-view';
-import { ESCALATION_COLORS, GRADE_COLORS } from '@/components/ai-performance/grade-colors';
 
 const TABS = ['AI Grades', 'Transcript', 'History'] as const;
 
-function EscalationBadge({ type }: { type: string | null }) {
-    if (!type || type === 'None') return null;
-    const color = ESCALATION_COLORS[type] ?? GRADE_COLORS.gray;
-    const textClass = type === 'Failure' ? 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/30' : 'text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30';
-    return (
-        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${textClass}`}>
-            {type} Escalation
-        </span>
+function formatDateLabel(value: string) {
+    try {
+        return format(parseISO(value), 'MMM dd, yyyy');
+    } catch {
+        return value;
+    }
+}
+
+function statusBadgeClasses(kind: 'intent' | 'resolved' | 'unresolved' | 'failure' | 'natural') {
+    switch (kind) {
+        case 'intent':
+            return 'bg-[#EFF6FF] text-[#2563EB]';
+        case 'resolved':
+            return 'bg-[#F0FDF4] text-[#1D9E75]';
+        case 'unresolved':
+            return 'bg-[#FEF2F2] text-[#E24B4A]';
+        case 'failure':
+            return 'bg-[#FFF7ED] text-[#D85A30]';
+        case 'natural':
+            return 'bg-[#ECFDF5] text-[#0F766E]';
+    }
+}
+
+function resolutionSummary(value: boolean | null) {
+    if (value === null) {
+        return <Minus className="h-4 w-4 text-[#9C9889]" />;
+    }
+
+    return value ? (
+        <Check className="h-4 w-4 text-[#1D9E75]" />
+    ) : (
+        <X className="h-4 w-4 text-[#E24B4A]" />
     );
 }
 
@@ -26,97 +51,126 @@ interface ConversationDetailProps {
 }
 
 export function ConversationDetail({ detail }: ConversationDetailProps) {
-    const [activeTab, setActiveTab] = useState(0);
+    const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>('AI Grades');
+
+    const historyItems = useMemo(() => detail.recent_history.slice(0, 6), [detail.recent_history]);
 
     return (
-        <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="p-4 border-b space-y-2">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <div className="font-semibold text-base">{detail.contact_name ?? 'Anonymous'}</div>
-                        <div className="text-[11px] text-muted-foreground">Graded {detail.grade_date} &middot; {detail.message_count} messages</div>
+        <div className="flex h-full min-h-0 flex-col">
+            <div className="border-b border-[#E5E7EB] px-8 pb-4 pt-6">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="space-y-1">
+                        <h2 className="text-[1.75rem] font-extrabold tracking-[-0.03em] text-[#1A1917]">
+                            {detail.contact_name ?? 'Anonymous'}
+                        </h2>
+                        <p className="text-[12px] text-[#8B8796]">
+                            Graded {formatDateLabel(detail.grade_date)}
+                            {detail.message_count > 0 ? ` · ${detail.message_count} messages` : ''}
+                        </p>
                     </div>
-                    <div className="flex flex-wrap gap-1.5 justify-end max-w-[55%]">
+
+                    <div className="flex max-w-full flex-wrap gap-2">
                         {detail.intent_label && (
-                            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                            <span className={cn('rounded-md px-3 py-1 text-[11px] font-semibold', statusBadgeClasses('intent'))}>
                                 {detail.intent_label}
                             </span>
                         )}
                         {detail.resolution !== null && (
-                            <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${detail.resolution ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'}`}>
+                            <span
+                                className={cn(
+                                    'rounded-md px-3 py-1 text-[11px] font-semibold',
+                                    statusBadgeClasses(detail.resolution ? 'resolved' : 'unresolved'),
+                                )}
+                            >
                                 {detail.resolution ? 'Resolved' : 'Unresolved'}
                             </span>
                         )}
-                        <EscalationBadge type={detail.escalation_type} />
+                        {detail.escalation_type && detail.escalation_type !== 'None' && (
+                            <span
+                                className={cn(
+                                    'rounded-md px-3 py-1 text-[11px] font-semibold',
+                                    statusBadgeClasses(detail.escalation_type === 'Failure' ? 'failure' : 'natural'),
+                                )}
+                            >
+                                {detail.escalation_type} Escalation
+                            </span>
+                        )}
                     </div>
                 </div>
+
                 {detail.highlights.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                        {detail.highlights.map((h) => (
-                            <HighlightBadge key={h.code} code={h.code} label={h.label} />
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                        {detail.highlights.map((highlight) => (
+                            <HighlightBadge key={highlight.code} code={highlight.code} label={highlight.label} />
                         ))}
                     </div>
                 )}
+
+                <div className="mt-4 flex items-center gap-6 border-b border-[#E5E7EB]">
+                    {TABS.map((tab) => (
+                        <button
+                            key={tab}
+                            type="button"
+                            onClick={() => setActiveTab(tab)}
+                            className={cn(
+                                'border-b-2 px-1 pb-3 text-[13px] font-semibold transition-colors',
+                                activeTab === tab
+                                    ? 'border-[#2563EB] text-[#2563EB]'
+                                    : 'border-transparent text-[#6B6960] hover:text-[#1A1917]',
+                            )}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b">
-                {TABS.map((label, i) => (
-                    <button
-                        key={label}
-                        onClick={() => setActiveTab(i)}
-                        className={cn(
-                            'px-4 py-2 text-xs font-medium transition-colors',
-                            activeTab === i
-                                ? 'text-primary border-b-2 border-primary -mb-px'
-                                : 'text-muted-foreground hover:text-foreground',
-                        )}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-
-            {/* Tab content */}
-            <div className="flex-1 overflow-y-auto">
-                {activeTab === 0 && (
-                    <div className="p-4">
+            <div className="min-h-0 flex-1 overflow-hidden">
+                {activeTab === 'AI Grades' && (
+                    <div className="h-full overflow-auto px-8 py-6">
                         <GradePanel panel={detail.grade_panel} />
                     </div>
                 )}
-                {activeTab === 1 && (
-                    <TranscriptView messages={detail.transcript} />
-                )}
-                {activeTab === 2 && (
-                    <div className="p-4 space-y-2">
-                        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                            Grade History
-                        </div>
-                        {detail.recent_history.length === 0 && (
-                            <p className="text-sm text-muted-foreground">No previous grades.</p>
-                        )}
-                        {detail.recent_history.map((item) => (
-                            <div key={item.grade_id} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/20 text-xs">
-                                <span className="font-medium text-muted-foreground w-20 flex-shrink-0">{item.grade_date}</span>
-                                <span className={item.resolution ? 'text-emerald-600' : 'text-red-500'}>
-                                    {item.resolution === null ? '—' : item.resolution ? 'Resolved' : 'Unresolved'}
-                                </span>
-                                {item.escalation_type && item.escalation_type !== 'None' && (
-                                    <span className={item.escalation_type === 'Failure' ? 'text-red-600' : 'text-teal-600'}>
-                                        {item.escalation_type} Esc.
-                                    </span>
-                                )}
-                                <span className="text-muted-foreground">
-                                    Frust: {item.frustration_score ?? '—'}
-                                </span>
-                                <div className="flex flex-wrap gap-1 ml-auto">
-                                    {item.highlights.slice(0, 2).map((h) => (
-                                        <HighlightBadge key={h.code} code={h.code} label={h.label} />
-                                    ))}
+
+                {activeTab === 'Transcript' && <TranscriptView messages={detail.transcript} />}
+
+                {activeTab === 'History' && (
+                    <div className="h-full overflow-auto px-8 py-6">
+                        <div className="space-y-3">
+                            {historyItems.length === 0 && (
+                                <p className="text-sm text-[#8B8796]">No previous grades are available for this conversation.</p>
+                            )}
+
+                            {historyItems.map((item) => (
+                                <div key={item.grade_id} className="rounded-2xl border border-[#E5E7EB] bg-[#FAFAF8] px-4 py-3">
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <div className="space-y-1">
+                                            <div className="text-[13px] font-semibold text-[#1A1917]">
+                                                {formatDateLabel(item.grade_date)}
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-3 text-[12px] text-[#6B6960]">
+                                                <span className="inline-flex items-center gap-1">
+                                                    {resolutionSummary(item.resolution)}
+                                                    {item.resolution === null ? 'Unknown' : item.resolution ? 'Resolved' : 'Unresolved'}
+                                                </span>
+                                                {item.frustration_score !== null && <span>Frustration {item.frustration_score}/10</span>}
+                                                {item.accuracy_score !== null && <span>Accuracy {item.accuracy_score}/10</span>}
+                                                {item.escalation_type && item.escalation_type !== 'None' && <span>{item.escalation_type} escalation</span>}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {item.highlights.length > 0 ? (
+                                                item.highlights.map((highlight) => (
+                                                    <HighlightBadge key={highlight.code} code={highlight.code} label={highlight.label} />
+                                                ))
+                                            ) : (
+                                                <span className="text-[11px] font-medium text-[#B0AAA0]">No highlights</span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback, useTransition } from 'react';
+import { useState, useCallback, useEffect, useTransition } from 'react';
 import type { MonitoringListResponse, MonitoringConversationDetail, MonitoringFilters } from '@/lib/monitoring-types';
 import { listMonitoringConversations, getMonitoringDetail } from '@/app/actions/monitoring';
 import { FilterPanel } from './filter-panel';
 import { ConversationTable } from './conversation-table';
 import { ConversationDetail } from './conversation-detail';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 const LIMIT = 50;
 
@@ -33,11 +34,22 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
     const [items, setItems] = useState(initialData.items);
     const [total, setTotal] = useState(initialData.total);
     const [page, setPage] = useState(1);
-    const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+    const [selectedGradeId, setSelectedGradeId] = useState<string | null>(initialData.items[0]?.grade_id ?? null);
     const [detail, setDetail] = useState<MonitoringConversationDetail | null>(null);
-    const [detailLoading, setDetailLoading] = useState(false);
+    const [detailLoading, setDetailLoading] = useState(Boolean(initialData.items[0]));
     const [listPending, startListTransition] = useTransition();
-    const freshness = initialData.freshness;
+
+    const loadDetail = useCallback(async (gradeId: string) => {
+        setDetailLoading(true);
+        try {
+            const res = await getMonitoringDetail(gradeId);
+            setDetail(res.detail);
+        } catch {
+            setDetail(null);
+        } finally {
+            setDetailLoading(false);
+        }
+    }, []);
 
     const fetchList = useCallback((newFilters: MonitoringFilters, newPage: number) => {
         startListTransition(async () => {
@@ -66,6 +78,11 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
                 const res = await listMonitoringConversations(params);
                 setItems(res.items);
                 setTotal(res.total);
+                setSelectedGradeId(res.items[0]?.grade_id ?? null);
+                if (res.items.length === 0) {
+                    setDetail(null);
+                    setDetailLoading(false);
+                }
             } catch {
                 // silently keep old data on error
             }
@@ -75,8 +92,6 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
     const handleFiltersChange = (newFilters: MonitoringFilters) => {
         setFilters(newFilters);
         setPage(1);
-        setSelectedGradeId(null);
-        setDetail(null);
         fetchList(newFilters, 1);
     };
 
@@ -85,38 +100,30 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
         fetchList(filters, newPage);
     };
 
-    const handleSelectConversation = async (gradeId: string) => {
+    const handleSelectConversation = (gradeId: string) => {
         if (gradeId === selectedGradeId) return;
         setSelectedGradeId(gradeId);
-        setDetailLoading(true);
-        try {
-            const res = await getMonitoringDetail(gradeId);
-            setDetail(res.detail);
-        } catch {
-            setDetail(null);
-        } finally {
-            setDetailLoading(false);
-        }
     };
 
+    useEffect(() => {
+        if (!selectedGradeId) return;
+        void loadDetail(selectedGradeId);
+    }, [loadDetail, selectedGradeId]);
+
     return (
-        <div className="flex flex-col flex-1 h-[calc(100vh-7rem)] overflow-hidden">
-            {/* Freshness */}
-            {freshness.latest_successful_window_end_date && (
-                <div className="flex items-center gap-1.5 px-4 pt-1 text-[11px] text-muted-foreground">
-                    <span className="relative flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
-                    </span>
-                    Data through {freshness.latest_successful_window_end_date}
-                </div>
-            )}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="px-10 pt-5">
+                <FilterPanel filters={filters} onChange={handleFiltersChange} />
+            </div>
 
-            <FilterPanel filters={filters} onChange={handleFiltersChange} />
-
-            <div className="flex flex-1 overflow-hidden">
-                {/* Left: conversation list */}
-                <div className={`flex flex-col border-r transition-opacity ${listPending ? 'opacity-60' : ''} ${detail ? 'w-[520px] flex-shrink-0' : 'flex-1'}`}>
+            <div className="flex min-h-0 flex-1 gap-6 px-10 pb-8 pt-5">
+                <div
+                    className={cn(
+                        'min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)] transition-opacity',
+                        listPending && 'opacity-65',
+                        detail || detailLoading ? 'basis-[42%]' : 'flex-1',
+                    )}
+                >
                     <ConversationTable
                         items={items}
                         selectedGradeId={selectedGradeId}
@@ -128,14 +135,14 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
                     />
                 </div>
 
-                {/* Right: detail panel */}
                 {(detail || detailLoading) && (
-                    <div className="flex-1 overflow-hidden">
+                    <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)]">
                         {detailLoading ? (
-                            <div className="p-4 space-y-3">
-                                <Skeleton className="h-6 w-48" />
-                                <Skeleton className="h-4 w-32" />
-                                <Skeleton className="h-[300px] w-full" />
+                            <div className="space-y-4 p-6">
+                                <Skeleton className="h-7 w-56" />
+                                <Skeleton className="h-4 w-36" />
+                                <Skeleton className="h-6 w-64" />
+                                <Skeleton className="h-[360px] w-full rounded-2xl" />
                             </div>
                         ) : detail ? (
                             <ConversationDetail detail={detail} />

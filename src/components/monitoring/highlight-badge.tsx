@@ -8,17 +8,17 @@ interface HighlightBadgeProps {
 
 const CODE_STYLES: Record<string, string> = {
     high_frustration:
-        'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400',
+        'bg-[#FEF2F2] text-[#E24B4A]',
     failure_escalation:
-        'bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400',
+        'bg-[#FFF7ED] text-[#D85A30]',
     loop_detected:
-        'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400',
+        'bg-[#FFFBEB] text-[#EF9F27]',
     low_accuracy:
-        'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400',
+        'bg-[#FEF2F2] text-[#DC2626]',
     unresolved_low_satisfaction:
-        'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400',
+        'bg-[#F5F3FF] text-[#7C3AED]',
     non_genuine:
-        'bg-gray-100 dark:bg-gray-800/40 text-gray-600 dark:text-gray-400',
+        'bg-[#F3F4F6] text-[#6B7280]',
 };
 
 export function HighlightBadge({ code, label }: HighlightBadgeProps) {
@@ -27,7 +27,7 @@ export function HighlightBadge({ code, label }: HighlightBadgeProps) {
     return (
         <span
             className={cn(
-                'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold',
+                'inline-flex items-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-4',
                 styles
             )}
         >

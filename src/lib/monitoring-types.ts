@@ -37,19 +37,17 @@ export interface MonitoringListResponse {
     freshness: Freshness;
 }
 
-// Each field in the grade panel is a free-form object with score/value + reasoning
-export interface GradePanelField {
-    score?: number;
-    value?: boolean | string;
-    reasoning: string;
-}
+// Monitoring grade sections are intentionally permissive because the backend
+// returns section objects with loose keys like `relevancy_score` and
+// `relevancy_reasoning`.
+export type MonitoringGradePanelSection = Record<string, unknown>;
 
 export interface MonitoringGradePanel {
-    ai_performance: Record<string, GradePanelField>;
-    conversation_health: Record<string, GradePanelField>;
-    user_signals: Record<string, GradePanelField>;
-    escalation: Record<string, GradePanelField>;
-    intent: Record<string, GradePanelField>;
+    ai_performance: MonitoringGradePanelSection;
+    conversation_health: MonitoringGradePanelSection;
+    user_signals: MonitoringGradePanelSection;
+    escalation: MonitoringGradePanelSection;
+    intent: MonitoringGradePanelSection;
 }
 
 export interface TranscriptMessage {

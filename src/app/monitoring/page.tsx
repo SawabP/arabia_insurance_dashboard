@@ -17,6 +17,19 @@ function formatDate(d: Date): string {
     return `${y}-${m}-${day}`;
 }
 
+function formatHeaderDate(value?: string | null): string | null {
+    if (!value) return null;
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+
+    return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    }).format(parsed);
+}
+
 export default async function MonitoringPage({ searchParams }: PageProps) {
     const today = new Date();
     const yesterday = new Date(today);
@@ -43,14 +56,25 @@ export default async function MonitoringPage({ searchParams }: PageProps) {
         offset: 0,
     });
 
+    const freshnessDate = formatHeaderDate(initialData.freshness.latest_successful_window_end_date);
+
     return (
-        <div className="flex flex-col flex-1 p-0 overflow-hidden">
-            <div className="flex items-center justify-between px-8 pt-8 pb-4">
-                <div className="space-y-1">
-                    <h2 className="text-3xl font-bold tracking-tight">Conversations Monitoring</h2>
-                    <p className="text-xs text-muted-foreground font-medium">
-                        {initialData.total.toLocaleString()} conversations in selected window
-                    </p>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#FAFAFA]">
+            <div className="px-10 pt-8">
+                <div className="space-y-3">
+                    <h1 className="text-[2.25rem] font-extrabold tracking-[-0.04em] text-[#1A1917]">
+                        Conversations Monitoring
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-[#8B8796]">
+                        {freshnessDate && (
+                            <>
+                                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
+                                <span>Data through {freshnessDate}</span>
+                                <span className="h-3 w-px bg-[#E8E5DF]" />
+                            </>
+                        )}
+                        <span>{initialData.total.toLocaleString()} conversations</span>
+                    </div>
                 </div>
             </div>
             <MonitoringShell
