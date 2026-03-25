@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { BACKEND_AUTH_COOKIE, buildBackendUrl } from '@/lib/backend-auth';
 
-type SearchParamValue = string | number | boolean | null | undefined;
+type SearchParamValue = string | number | boolean | null | undefined | string[];
 
 interface BackendRequestOptions {
     method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
@@ -45,6 +45,13 @@ function appendSearchParams(url: URL, searchParams?: Record<string, SearchParamV
 
     for (const [key, value] of Object.entries(searchParams)) {
         if (value === undefined || value === null || value === '') {
+            continue;
+        }
+
+        if (Array.isArray(value)) {
+            for (const item of value) {
+                url.searchParams.append(key, String(item));
+            }
             continue;
         }
 
