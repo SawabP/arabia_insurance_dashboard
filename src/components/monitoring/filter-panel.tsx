@@ -153,9 +153,9 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                         />
 
                         {/* Panel */}
-                        <div className="absolute left-0 top-[calc(100%+0.625rem)] z-30 w-[540px] rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-[0_20px_40px_rgba(17,24,39,0.12)]">
-                            {/* Header */}
-                            <div className="mb-4 flex items-center justify-between">
+                        <div className="absolute left-0 top-[calc(100%+0.625rem)] z-30 w-[540px] rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_20px_40px_rgba(17,24,39,0.12)] flex flex-col max-h-[calc(100vh-12rem)]">
+                            {/* Header — sticky */}
+                            <div className="flex-shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#F3F4F6]">
                                 <span className="text-[13px] font-semibold text-[#1A1917]">Filters &amp; Sort</span>
                                 {activeCount > 0 && (
                                     <button
@@ -168,7 +168,8 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                 )}
                             </div>
 
-                            {/* Grid of controls */}
+                            {/* Scrollable grid */}
+                            <div className="flex-1 overflow-y-auto px-5 py-4">
                             <div className="grid grid-cols-2 gap-x-8 gap-y-5">
                                 {/* Resolution */}
                                 <div className="space-y-2">
@@ -309,9 +310,10 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                     />
                                 </div>
                             </div>
+                            </div>
 
-                            {/* Sort — footer row */}
-                            <div className="mt-5 border-t border-[#F3F4F6] pt-4 flex items-center gap-3">
+                            {/* Sort — sticky footer */}
+                            <div className="flex-shrink-0 border-t border-[#F3F4F6] px-5 py-4 flex items-center gap-3">
                                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9C9889]">Sort by</span>
                                 <Select
                                     value={filters.sort_by ?? 'default'}
