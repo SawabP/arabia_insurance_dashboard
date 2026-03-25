@@ -26,12 +26,21 @@ export const FUNNEL_COLORS = ['#B4B2A9', GRADE_COLORS.amber, GRADE_COLORS.coral,
 // Frustration histogram bucket colors (low -> high frustration).
 export const FRUSTRATION_COLORS = ['#C0DD97', '#9FE1CB', '#FAC775', '#F7C1C1', GRADE_COLORS.red];
 
-// Heatmap: avg satisfaction -> { bg, text } (spec section 5.3).
+// Heatmap: higher score = better (satisfaction, accuracy, relevancy, etc).
 export function heatColor(v: number): { bg: string; text: string } {
     if (v >= 7.5) return { bg: '#C0DD97', text: '#27500A' };
     if (v >= 6.0) return { bg: '#9FE1CB', text: '#085041' };
     if (v >= 4.5) return { bg: '#FAEEDA', text: '#633806' };
     if (v >= 3.0) return { bg: '#F7C1C1', text: '#791F1F' };
+    return { bg: '#F09595', text: '#791F1F' };
+}
+
+// Inverse heatmap: lower score = better (frustration).
+export function frustrationColor(v: number): { bg: string; text: string } {
+    if (v <= 2.5) return { bg: '#C0DD97', text: '#27500A' };
+    if (v <= 4.0) return { bg: '#9FE1CB', text: '#085041' };
+    if (v <= 5.5) return { bg: '#FAEEDA', text: '#633806' };
+    if (v <= 7.0) return { bg: '#F7C1C1', text: '#791F1F' };
     return { bg: '#F09595', text: '#791F1F' };
 }
 

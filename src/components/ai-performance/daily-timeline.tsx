@@ -167,7 +167,7 @@ export function DailyTimeline({ data }: { data: DailyTimelineResponse }) {
                                         <MiniPerf scores={[row.relevancy_score, row.accuracy_score, row.completeness_score, row.clarity_score, row.tone_score]} />
                                     </TableCell>
                                     <TableCell><ScoreDot value={row.satisfaction_score} /></TableCell>
-                                    <TableCell><ScoreDot value={row.frustration_score} /></TableCell>
+                                    <TableCell><ScoreDot value={row.frustration_score} inverted /></TableCell>
                                     <TableCell>
                                         <Badge variant={row.resolution ? 'default' : 'destructive'} className="text-[10px]">
                                             {row.resolution ? 'Yes' : 'No'}

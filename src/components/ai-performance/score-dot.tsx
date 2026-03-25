@@ -1,10 +1,11 @@
 import { cn } from '@/lib/utils';
 
-export function ScoreDot({ value }: { value: number }) {
+export function ScoreDot({ value, inverted = false }: { value: number; inverted?: boolean }) {
+    const effectiveValue = inverted ? 11 - value : value;
     const style =
-        value <= 4
+        effectiveValue <= 4
             ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-            : value <= 6
+            : effectiveValue <= 6
               ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
               : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
 
