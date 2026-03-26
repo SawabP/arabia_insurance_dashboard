@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Check, Minus, X } from 'lucide-react';
+import { Check, Minus, Minimize2, Maximize2, X } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { MonitoringConversationDetail } from '@/lib/monitoring-types';
@@ -48,9 +48,11 @@ function resolutionSummary(value: boolean | null) {
 
 interface ConversationDetailProps {
     detail: MonitoringConversationDetail;
+    expanded?: boolean;
+    onToggleExpand?: () => void;
 }
 
-export function ConversationDetail({ detail }: ConversationDetailProps) {
+export function ConversationDetail({ detail, expanded = false, onToggleExpand }: ConversationDetailProps) {
     const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>('AI Grades');
 
     const historyItems = useMemo(() => detail.recent_history.slice(0, 6), [detail.recent_history]);
@@ -69,7 +71,20 @@ export function ConversationDetail({ detail }: ConversationDetailProps) {
                         </p>
                     </div>
 
-                    <div className="flex max-w-full flex-wrap gap-2">
+                    <div className="flex max-w-full flex-wrap items-start gap-2">
+                        {onToggleExpand && (
+                            <button
+                                type="button"
+                                onClick={onToggleExpand}
+                                className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg border border-[#E5E7EB] text-[#9C9889] transition-colors hover:border-[#D1D5DB] hover:text-[#1A1917]"
+                                aria-label={expanded ? 'Collapse panel' : 'Expand panel'}
+                            >
+                                {expanded
+                                    ? <Minimize2 className="h-3.5 w-3.5" />
+                                    : <Maximize2 className="h-3.5 w-3.5" />
+                                }
+                            </button>
+                        )}
                         {detail.intent_label && (
                             <span className={cn('rounded-md px-3 py-1 text-[11px] font-semibold', statusBadgeClasses('intent'))}>
                                 {detail.intent_label}

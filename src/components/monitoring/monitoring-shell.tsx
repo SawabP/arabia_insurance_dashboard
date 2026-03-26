@@ -37,6 +37,7 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
     const [selectedGradeId, setSelectedGradeId] = useState<string | null>(initialData.items[0]?.grade_id ?? null);
     const [detail, setDetail] = useState<MonitoringConversationDetail | null>(null);
     const [detailLoading, setDetailLoading] = useState(Boolean(initialData.items[0]));
+    const [detailExpanded, setDetailExpanded] = useState(false);
     const [listPending, startListTransition] = useTransition();
 
     const loadDetail = useCallback(async (gradeId: string) => {
@@ -103,6 +104,7 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
     const handleSelectConversation = (gradeId: string) => {
         if (gradeId === selectedGradeId) return;
         setSelectedGradeId(gradeId);
+        setDetailExpanded(false);
     };
 
     useEffect(() => {
@@ -116,12 +118,14 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
                 <FilterPanel filters={filters} onChange={handleFiltersChange} />
             </div>
 
-            <div className="flex min-h-0 flex-1 gap-6 px-10 pb-8 pt-5">
+            <div className="relative flex min-h-0 flex-1 gap-6 px-10 pb-8 pt-5">
+                {/* Conversation list — hidden when detail is expanded */}
                 <div
                     className={cn(
                         'min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)] transition-opacity',
                         listPending && 'opacity-65',
                         detail || detailLoading ? 'basis-[42%]' : 'flex-1',
+                        detailExpanded && 'invisible',
                     )}
                 >
                     <ConversationTable
@@ -135,8 +139,16 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
                     />
                 </div>
 
+                {/* Detail panel */}
                 {(detail || detailLoading) && (
-                    <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)]">
+                    <div
+                        className={cn(
+                            'overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)] transition-all duration-200',
+                            detailExpanded
+                                ? 'absolute inset-0 mx-10 mb-8 mt-5 z-10'
+                                : 'min-w-0 flex-1',
+                        )}
+                    >
                         {detailLoading ? (
                             <div className="space-y-4 p-6">
                                 <Skeleton className="h-7 w-56" />
@@ -145,7 +157,11 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
                                 <Skeleton className="h-[360px] w-full rounded-2xl" />
                             </div>
                         ) : detail ? (
-                            <ConversationDetail detail={detail} />
+                            <ConversationDetail
+                                detail={detail}
+                                expanded={detailExpanded}
+                                onToggleExpand={() => setDetailExpanded((v) => !v)}
+                            />
                         ) : null}
                     </div>
                 )}
