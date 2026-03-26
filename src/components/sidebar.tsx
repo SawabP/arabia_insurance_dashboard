@@ -9,7 +9,7 @@ import { ThemeToggle } from './theme-toggle';
 import { logoutAction } from '@/app/auth/actions';
 
 const NAV_ITEMS = [
-    { href: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    { href: '/', label: 'Analytics', icon: LayoutDashboard, exact: true },
     { href: '/monitoring', label: 'Monitoring', icon: Eye, exact: false },
     { href: '/ai-performance', label: 'AI Performance', icon: BrainCircuit, exact: false },
 ] as const;

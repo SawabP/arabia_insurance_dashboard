@@ -1,4 +1,4 @@
-import { getDashboardStats, getChatVolumeData, getIntentDistribution, getRecentInteractions, getPeakActivityData, getKpiTrends, getLeadTrends } from '@/app/actions/dashboard';
+import { getDashboardStats, getChatVolumeData, getRecentInteractions, getPeakActivityData, getKpiTrends, getLeadTrends } from '@/app/actions/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OverviewCharts } from '@/components/dashboard/overview-charts';
 import { MessageSquare, Users, ArrowDownLeft, ArrowUpRight, AlertTriangle, Zap, CheckCircle2, TrendingUp, Percent, Target } from 'lucide-react';
@@ -28,7 +28,6 @@ const DASHBOARD_TOOLTIPS = {
     outbound: 'Messages sent by the system back to customers.',
     avgEngagement: 'Average number of messages per unique customer.',
     messageVolumeTrend: 'Daily message counts over the selected period.',
-    topIntents: 'Top 5 detected intents by message count.',
     peakActivityHours: 'Message counts grouped by hour of day (0-23) across the selected period.',
     recentConversations: 'Latest conversation summaries returned by the backend conversations endpoint.',
 } as const;
@@ -46,10 +45,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
     const channel = searchParams.channel || 'all';
 
-    const [stats, volumeData, intentData, peakData, recentInteractions, kpiTrends, leadTrends] = await Promise.all([
+    const [stats, volumeData, peakData, recentInteractions, kpiTrends, leadTrends] = await Promise.all([
         getDashboardStats(startDate, endDate, channel),
         getChatVolumeData(startDate, endDate, channel),
-        getIntentDistribution(startDate, endDate, channel),
         getPeakActivityData(startDate, endDate, channel),
         getRecentInteractions(channel),
         getKpiTrends(startDate, endDate, channel),
@@ -257,19 +255,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </CardHeader>
                     <CardContent className="p-6">
                         <OverviewCharts volumeData={volumeData} type="volume" />
-                    </CardContent>
-                </Card>
-
-                <Card className="col-span-2">
-                    <CardHeader className="flex flex-row items-center justify-between py-4 border-b bg-muted/20">
-                        <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Top Intents</CardTitle>
-                        <div className="flex items-center gap-2">
-                            <InfoTooltip content={DASHBOARD_TOOLTIPS.topIntents} align="end" />
-                            <Target className="h-4 w-4 text-primary" />
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        <OverviewCharts intentData={intentData} type="intent" />
                     </CardContent>
                 </Card>
 

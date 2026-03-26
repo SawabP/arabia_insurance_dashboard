@@ -4,7 +4,7 @@ import { Sidebar } from "@/components/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-    title: "AIVA Dashboard",
+    title: "AIVA Analytics",
     description: "Analytics Dashboard for AIVA",
 };
 
