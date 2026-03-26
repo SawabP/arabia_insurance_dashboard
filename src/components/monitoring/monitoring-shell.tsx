@@ -17,6 +17,19 @@ interface MonitoringShellProps {
     initialEndDate: string;
 }
 
+function formatHeaderDate(value?: string | null): string | null {
+    if (!value) return null;
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+
+    return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    }).format(parsed);
+}
+
 export function MonitoringShell({ initialData, initialStartDate, initialEndDate }: MonitoringShellProps) {
     const [filters, setFilters] = useState<MonitoringFilters>({
         start_date: initialStartDate,
@@ -39,6 +52,8 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
     const [detailLoading, setDetailLoading] = useState(Boolean(initialData.items[0]));
     const [detailExpanded, setDetailExpanded] = useState(false);
     const [listPending, startListTransition] = useTransition();
+    const freshnessDate = formatHeaderDate(initialData.freshness.latest_successful_window_end_date);
+    const showDetail = Boolean(detail || detailLoading);
 
     const loadDetail = useCallback(async (gradeId: string) => {
         setDetailLoading(true);
@@ -107,25 +122,50 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
         setDetailExpanded(false);
     };
 
+    const handleToggleExpand = () => {
+        setDetailExpanded((value) => !value);
+    };
+
     useEffect(() => {
         if (!selectedGradeId) return;
         void loadDetail(selectedGradeId);
     }, [loadDetail, selectedGradeId]);
 
     return (
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="px-10 pt-5">
-                <FilterPanel filters={filters} onChange={handleFiltersChange} />
-            </div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#FAFAFA]">
+            <div
+                className={cn(
+                    'grid min-h-0 flex-1 grid-rows-[auto_auto_minmax(0,1fr)] gap-x-6 px-10 pb-8 pt-8',
+                    showDetail ? 'grid-cols-[minmax(0,42%)_minmax(0,1fr)]' : 'grid-cols-1',
+                )}
+            >
+                <div className={cn(showDetail && detailExpanded ? 'col-start-1' : 'col-span-full')}>
+                    <div className="space-y-3">
+                        <h1 className="text-[2.25rem] font-extrabold tracking-[-0.04em] text-[#1A1917]">
+                            Conversations Monitoring
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-[#8B8796]">
+                            {freshnessDate && (
+                                <>
+                                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
+                                    <span>Data through {freshnessDate}</span>
+                                    <span className="h-3 w-px bg-[#E8E5DF]" />
+                                </>
+                            )}
+                            <span>{total.toLocaleString()} conversations</span>
+                        </div>
+                    </div>
+                </div>
 
-            <div className="relative flex min-h-0 flex-1 gap-6 px-10 pb-8 pt-5">
-                {/* Conversation list — hidden when detail is expanded */}
+                <div className={cn('pt-5', showDetail && detailExpanded ? 'col-start-1' : 'col-span-full')}>
+                    <FilterPanel filters={filters} onChange={handleFiltersChange} />
+                </div>
+
                 <div
                     className={cn(
-                        'min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)] transition-opacity',
+                        'mt-5 min-h-0 min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)] transition-opacity',
+                        showDetail ? 'col-start-1 row-start-3' : 'col-span-full row-start-3',
                         listPending && 'opacity-65',
-                        detail || detailLoading ? 'basis-[42%]' : 'flex-1',
-                        detailExpanded && 'invisible',
                     )}
                 >
                     <ConversationTable
@@ -139,14 +179,11 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
                     />
                 </div>
 
-                {/* Detail panel */}
-                {(detail || detailLoading) && (
+                {showDetail && (
                     <div
                         className={cn(
-                            'overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)] transition-all duration-200',
-                            detailExpanded
-                                ? 'absolute inset-0 mx-10 mb-8 mt-5 z-10'
-                                : 'min-w-0 flex-1',
+                            'min-h-0 min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_10px_30px_rgba(17,24,39,0.04)] transition-shadow duration-200',
+                            detailExpanded ? 'col-start-2 row-[1/4]' : 'col-start-2 row-start-3 mt-5',
                         )}
                     >
                         {detailLoading ? (
@@ -160,7 +197,7 @@ export function MonitoringShell({ initialData, initialStartDate, initialEndDate 
                             <ConversationDetail
                                 detail={detail}
                                 expanded={detailExpanded}
-                                onToggleExpand={() => setDetailExpanded((v) => !v)}
+                                onToggleExpand={handleToggleExpand}
                             />
                         ) : null}
                     </div>
