@@ -10,8 +10,15 @@ import { DimensionBars } from './dimension-bars';
 import { SectionLabel } from './section-label';
 import { ScoreTrendsChart } from './score-trends-chart';
 import { IntentDistribution } from './intent-distribution';
+import { invertTenPointScore } from '@/lib/score-formatters';
 
 function r1(v: number) { return +v.toFixed(1); }
+
+function scoreToneClass(score: number) {
+    if (score <= 4) return 'text-red-700 dark:text-red-400';
+    if (score <= 6) return 'text-amber-700 dark:text-amber-400';
+    return 'text-emerald-700 dark:text-emerald-400';
+}
 
 interface AgentPulseProps {
     data: AgentPulseResponse;
@@ -22,6 +29,7 @@ interface AgentPulseProps {
 export function AgentPulse({ data, scoreTrends, intentDistribution }: AgentPulseProps) {
     const escalation = data.escalation_breakdown ?? [];
     const totalEsc = escalation.reduce((s, e) => s + e.count, 0);
+    const repetitionScore = invertTenPointScore(data.health.avg_repetition_score);
     const dims = {
         relevancy: r1(data.dimension_averages.relevancy),
         accuracy: r1(data.dimension_averages.accuracy),
@@ -47,9 +55,9 @@ export function AgentPulse({ data, scoreTrends, intentDistribution }: AgentPulse
             <div>
                 <SectionLabel>Conversation health</SectionLabel>
                 <div className="grid grid-cols-3 gap-3">
-                    {[
+                    {[ 
                         { label: 'Resolved', value: `${r1(data.health.resolution_rate_pct)}%`, cls: 'text-emerald-700 dark:text-emerald-400' },
-                        { label: 'Repetition avg', value: r1(data.health.avg_repetition_score), cls: 'text-amber-700 dark:text-amber-400' },
+                        { label: 'Repetition avg', value: repetitionScore, cls: scoreToneClass(repetitionScore) },
                         { label: 'Loops detected', value: `${r1(data.health.loop_detected_rate_pct)}%`, cls: 'text-red-700 dark:text-red-400' },
                     ].map((c) => (
                         <Card key={c.label}>

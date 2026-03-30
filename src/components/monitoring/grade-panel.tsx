@@ -4,6 +4,7 @@ import { Check, Minus, X } from 'lucide-react';
 import { SectionLabel } from '@/components/ai-performance/section-label';
 import { heatColor, frustrationColor } from '@/components/ai-performance/grade-colors';
 import type { MonitoringGradePanel, MonitoringGradePanelSection } from '@/lib/monitoring-types';
+import { invertTenPointScore } from '@/lib/score-formatters';
 import { cn } from '@/lib/utils';
 
 type MetricKind = 'score' | 'boolean' | 'string';
@@ -120,19 +121,17 @@ function normalizeSection(section: MonitoringGradePanelSection, definitions: Met
         .filter((metric): metric is NormalizedMetric => metric !== null);
 }
 
-// Metrics where a lower score is better.
-const INVERTED_METRICS = new Set(['frustration', 'repetition']);
-
 function MetricValue({ metric }: { metric: NormalizedMetric }) {
     if (metric.kind === 'score' && typeof metric.value === 'number') {
-        const colorFn = INVERTED_METRICS.has(metric.id) ? frustrationColor : heatColor;
-        const colors = colorFn(metric.value);
+        const displayValue = metric.id === 'repetition' ? invertTenPointScore(metric.value) : metric.value;
+        const colorFn = metric.id === 'frustration' ? frustrationColor : heatColor;
+        const colors = colorFn(displayValue);
         return (
             <span
                 className="inline-flex rounded-md px-2 py-1 text-[12px] font-bold"
                 style={{ backgroundColor: colors.bg, color: colors.text }}
             >
-                {metric.value}/10
+                {displayValue}/10
             </span>
         );
     }

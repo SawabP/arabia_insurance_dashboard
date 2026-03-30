@@ -62,79 +62,81 @@ export function Correlations({ data }: { data: CorrelationsResponse }) {
                 </div>
             )}
 
-            {/* Failure funnel */}
-            {funnel.length > 0 && (
-                <div>
-                    <SectionLabel>Failure escalation funnel</SectionLabel>
-                    <p className="text-xs text-muted-foreground mb-2">What happens in conversations that end in failure escalation</p>
-                    <div className="flex flex-col gap-1">
-                        {funnel.map((step, i) => {
-                            const pct = Math.max((step.count / maxFunnelCount) * 100, 5);
-                            return (
-                                <div key={step.step_key} className="flex items-center gap-3">
-                                    <span className="text-xs text-muted-foreground w-[140px] text-right flex-shrink-0">{step.label}</span>
-                                    <div
-                                        className="h-8 rounded flex items-center px-3 text-xs font-medium text-white transition-all duration-500"
-                                        style={{ width: `${pct}%`, backgroundColor: FUNNEL_COLORS[i] ?? FUNNEL_COLORS[FUNNEL_COLORS.length - 1], minWidth: 40 }}
-                                    >
-                                        {step.count}
+            {(funnel.length > 0 || histogram.length > 0) && (
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {funnel.length > 0 && (
+                        <div>
+                            <SectionLabel>Failure escalation funnel</SectionLabel>
+                            <p className="text-xs text-muted-foreground mb-2">What happens in conversations that end in failure escalation</p>
+                            <div className="flex flex-col gap-1">
+                                {funnel.map((step, i) => {
+                                    const pct = Math.max((step.count / maxFunnelCount) * 100, 5);
+                                    return (
+                                        <div key={step.step_key} className="flex items-center gap-3">
+                                            <span className="text-xs text-muted-foreground w-[140px] text-right flex-shrink-0">{step.label}</span>
+                                            <div
+                                                className="h-8 rounded flex items-center px-3 text-xs font-medium text-white transition-all duration-500"
+                                                style={{ width: `${pct}%`, backgroundColor: FUNNEL_COLORS[i] ?? FUNNEL_COLORS[FUNNEL_COLORS.length - 1], minWidth: 40 }}
+                                            >
+                                                {step.count}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {histogram.length > 0 && (() => {
+                        const totalHist = histogram.reduce((s, b) => s + b.count, 0);
+                        return (
+                            <Card>
+                                <CardContent className="p-5">
+                                    <SectionLabel>Frustration score distribution</SectionLabel>
+                                    <p className="text-xs text-muted-foreground mb-4">How conversations cluster by frustration level</p>
+
+                                    <div className="flex gap-2 items-end" style={{ height: 140 }}>
+                                        {histogram.map((b, i) => {
+                                            const barH = maxHistCount > 0 ? Math.max(Math.round((b.count / maxHistCount) * 130), 6) : 6;
+                                            const sharePct = totalHist > 0 ? ((b.count / totalHist) * 100).toFixed(1) : '0';
+                                            const color = FRUSTRATION_COLORS[i] ?? FRUSTRATION_COLORS[FRUSTRATION_COLORS.length - 1];
+                                            return (
+                                                <div key={b.bucket_label} className="flex-1 flex flex-col items-center justify-end group/bar">
+                                                    <div className="opacity-0 group-hover/bar:opacity-100 transition-opacity duration-150 mb-1 px-2 py-1 rounded-md bg-popover border border-border shadow-sm whitespace-nowrap">
+                                                        <div className="text-[10px] font-bold text-popover-foreground text-center">{b.count}</div>
+                                                        <div className="text-[9px] text-muted-foreground text-center">{sharePct}%</div>
+                                                    </div>
+                                                    <div
+                                                        className="w-full rounded-t-md transition-all duration-500 ease-out relative overflow-hidden group-hover/bar:brightness-110"
+                                                        style={{ height: barH, backgroundColor: color }}
+                                                    >
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/10" />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+
+                                    <div className="flex gap-2 mt-2 pt-2 border-t border-border">
+                                        {histogram.map((b, i) => {
+                                            const color = FRUSTRATION_COLORS[i] ?? FRUSTRATION_COLORS[FRUSTRATION_COLORS.length - 1];
+                                            return (
+                                                <div key={b.bucket_label} className="flex-1 text-center">
+                                                    <div className="flex items-center justify-center gap-1 mb-0.5">
+                                                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+                                                        <span className="text-[11px] font-medium text-foreground">{b.bucket_label}</span>
+                                                    </div>
+                                                    <div className="text-[10px] text-muted-foreground">{b.count} convos</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })()}
                 </div>
             )}
-
-            {/* Frustration histogram */}
-            {histogram.length > 0 && (() => {
-                const totalHist = histogram.reduce((s, b) => s + b.count, 0);
-                return (
-                    <Card>
-                        <CardContent className="p-5">
-                            <SectionLabel>Frustration score distribution</SectionLabel>
-                            <p className="text-xs text-muted-foreground mb-4">How conversations cluster by frustration level</p>
-
-                            <div className="flex gap-2 items-end" style={{ height: 140 }}>
-                                {histogram.map((b, i) => {
-                                    const barH = maxHistCount > 0 ? Math.max(Math.round((b.count / maxHistCount) * 130), 6) : 6;
-                                    const sharePct = totalHist > 0 ? ((b.count / totalHist) * 100).toFixed(1) : '0';
-                                    const color = FRUSTRATION_COLORS[i] ?? FRUSTRATION_COLORS[FRUSTRATION_COLORS.length - 1];
-                                    return (
-                                        <div key={b.bucket_label} className="flex-1 flex flex-col items-center justify-end group/bar">
-                                            <div className="opacity-0 group-hover/bar:opacity-100 transition-opacity duration-150 mb-1 px-2 py-1 rounded-md bg-popover border border-border shadow-sm whitespace-nowrap">
-                                                <div className="text-[10px] font-bold text-popover-foreground text-center">{b.count}</div>
-                                                <div className="text-[9px] text-muted-foreground text-center">{sharePct}%</div>
-                                            </div>
-                                            <div
-                                                className="w-full rounded-t-md transition-all duration-500 ease-out relative overflow-hidden group-hover/bar:brightness-110"
-                                                style={{ height: barH, backgroundColor: color }}
-                                            >
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/10" />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            <div className="flex gap-2 mt-2 pt-2 border-t border-border">
-                                {histogram.map((b, i) => {
-                                    const color = FRUSTRATION_COLORS[i] ?? FRUSTRATION_COLORS[FRUSTRATION_COLORS.length - 1];
-                                    return (
-                                        <div key={b.bucket_label} className="flex-1 text-center">
-                                            <div className="flex items-center justify-center gap-1 mb-0.5">
-                                                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-                                                <span className="text-[11px] font-medium text-foreground">{b.bucket_label}</span>
-                                            </div>
-                                            <div className="text-[10px] text-muted-foreground">{b.count} convos</div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardContent>
-                    </Card>
-                );
-            })()}
 
             {/* Story cards -- hidden for now, data still fetched */}
         </div>

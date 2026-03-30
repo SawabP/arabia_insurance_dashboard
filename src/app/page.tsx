@@ -22,7 +22,7 @@ const DASHBOARD_TOOLTIPS = {
     totalMessages: 'Total number of chat messages recorded in the selected date range and channel.',
     totalCustomers: 'Number of distinct customers in the selected range.',
     escalationRate: 'Percentage of unique customers whose conversations were handed off to a human agent.',
-    resolutionRate: 'Percentage of unique customers resolved without a human handoff.',
+    resolutionRate: 'Percentage of unique customers automatically handled without a human handoff.',
     outputConversion: 'Percentage of unique customers who became high-intent leads.',
     inbound: 'Messages sent by customers into the system.',
     outbound: 'Messages sent by the system back to customers.',
@@ -79,7 +79,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <Card className="relative overflow-hidden group">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between space-y-0 pb-1">
@@ -150,7 +150,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between">
                                 <div className="flex min-w-0 items-center gap-1.5">
-                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">RESOLUTION RATE</p>
+                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">AUTOMATED HANDLING RATE</p>
                                     <InfoTooltip content={DASHBOARD_TOOLTIPS.resolutionRate} />
                                 </div>
                                 <Sparkline data={kpiTrends} dataKey="total" color="#059669" className="h-6 w-20" />
