@@ -41,12 +41,12 @@ const HEALTH_METRICS: MetricDefinition[] = [
 
 const USER_SIGNAL_METRICS: MetricDefinition[] = [
     { id: 'satisfaction', label: 'Satisfaction', kind: 'score', directKey: 'satisfaction_score', reasoningKey: 'satisfaction_reasoning' },
-    { id: 'frustration', label: 'Frustration', kind: 'score', directKey: 'frustration_score', reasoningKey: 'frustration_reasoning' },
+    { id: 'frustration', label: 'Satisfaction', kind: 'score', directKey: 'frustration_score', reasoningKey: 'frustration_reasoning' },
     { id: 'user_relevancy', label: 'Genuine Interaction', kind: 'boolean', directKey: 'user_relevancy', reasoningKey: 'user_relevancy_reasoning' },
 ];
 
 const ESCALATION_METRICS: MetricDefinition[] = [
-    { id: 'escalation_occurred', label: 'Escalated', kind: 'boolean', directKey: 'escalation_occurred', reasoningKey: 'escalation_occurred_reasoning' },
+    { id: 'escalation_occurred', label: 'Handed Over', kind: 'boolean', directKey: 'escalation_occurred', reasoningKey: 'escalation_occurred_reasoning' },
     { id: 'escalation_type', label: 'Type', kind: 'string', directKey: 'escalation_type', reasoningKey: 'escalation_type_reasoning' },
 ];
 
@@ -123,8 +123,8 @@ function normalizeSection(section: MonitoringGradePanelSection, definitions: Met
 
 function MetricValue({ metric }: { metric: NormalizedMetric }) {
     if (metric.kind === 'score' && typeof metric.value === 'number') {
-        const displayValue = metric.id === 'repetition' ? invertTenPointScore(metric.value) : metric.value;
-        const colorFn = metric.id === 'frustration' ? frustrationColor : heatColor;
+        const displayValue = (metric.id === 'repetition' || metric.id === 'frustration') ? invertTenPointScore(metric.value) : metric.value;
+        const colorFn = heatColor;
         const colors = colorFn(displayValue);
         return (
             <span
@@ -264,7 +264,7 @@ export function GradePanel({ panel }: GradePanelProps) {
             </section>
 
             <section className="space-y-3">
-                <SectionLabel>Escalation Details</SectionLabel>
+                <SectionLabel>Handover Details</SectionLabel>
                 <MetricList metrics={escalation} />
             </section>
 

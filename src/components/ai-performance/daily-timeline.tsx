@@ -155,7 +155,7 @@ export function DailyTimeline({ data }: { data: DailyTimelineResponse }) {
                                 <TableHead className="text-[11px]">Sat</TableHead>
                                 <TableHead className="text-[11px]">Fru</TableHead>
                                 <TableHead className="text-[11px]">Resolved</TableHead>
-                                <TableHead className="text-[11px]">Escalation</TableHead>
+                                <TableHead className="text-[11px]">Handover</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

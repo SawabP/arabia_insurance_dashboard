@@ -1,7 +1,7 @@
 import { getDashboardStats, getChatVolumeData, getRecentInteractions, getPeakActivityData, getKpiTrends, getLeadTrends } from '@/app/actions/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OverviewCharts } from '@/components/dashboard/overview-charts';
-import { MessageSquare, Users, ArrowDownLeft, ArrowUpRight, AlertTriangle, Zap, CheckCircle2, TrendingUp, Percent, Target } from 'lucide-react';
+import { MessageSquare, Users, ArrowDownLeft, ArrowUpRight, AlertTriangle, Zap, CheckCircle2, TrendingUp, Percent, Target, Headset } from 'lucide-react';
 import { DateRangePicker } from '@/components/dashboard/date-range-picker';
 import { RecentInteractions } from '@/components/dashboard/recent-interactions';
 import { Sparkline } from '@/components/dashboard/sparkline';
@@ -21,8 +21,8 @@ export const dynamic = 'force-dynamic';
 const DASHBOARD_TOOLTIPS = {
     totalMessages: 'Total number of chat messages recorded in the selected date range and channel.',
     totalCustomers: 'Number of distinct customers in the selected range.',
-    escalationRate: 'Percentage of unique customers whose conversations were handed off to a human agent.',
-    resolutionRate: 'Percentage of unique customers automatically handled without a human handoff.',
+    escalationRate: 'Percentage of unique customers whose conversations were handed over to a human agent.',
+    resolutionRate: 'Percentage of unique customers automatically handled without a human handover.',
     outputConversion: 'Percentage of unique customers who became high-intent leads.',
     inbound: 'Messages sent by customers into the system.',
     outbound: 'Messages sent by the system back to customers.',
@@ -120,20 +120,20 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-amber-500 group">
+                <Card className="relative overflow-hidden group">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between space-y-0 pb-1">
-                            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-600 transition-colors group-hover:bg-amber-500 group-hover:text-white">
-                                <AlertTriangle className="h-5 w-5" />
+                            <div className="p-2 bg-primary/10 rounded-lg text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                                <Headset className="h-5 w-5" />
                             </div>
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between">
                                 <div className="flex min-w-0 items-center gap-1.5">
-                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">HANDOFF RATE</p>
+                                    <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">HANDOVER RATE</p>
                                     <InfoTooltip content={DASHBOARD_TOOLTIPS.escalationRate} />
                                 </div>
-                                <Sparkline data={kpiTrends} dataKey="escalated" color="#f59e0b" className="h-6 w-20" />
+                                <Sparkline data={kpiTrends} dataKey="escalated" color="#6366f1" className="h-6 w-20" />
                             </div>
                             <h3 className="text-3xl font-black">{stats.escalationRate}%</h3>
                         </div>

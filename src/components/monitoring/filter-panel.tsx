@@ -46,7 +46,7 @@ const INTENT_TAXONOMY = [
         intents: [
             { code: 'general_inquiry', label: 'General Inquiry' },
             { code: 'complaint', label: 'Complaint' },
-            { code: 'escalation_request', label: 'Escalation Request' },
+            { code: 'escalation_request', label: 'Handover Request' },
         ],
     },
     {
@@ -176,7 +176,7 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                     <label className="text-[11px] font-semibold uppercase tracking-wider text-[#9C9889]">Resolution</label>
                                     <Select
                                         value={filters.resolution === null ? 'all' : String(filters.resolution)}
-                                        onValueChange={(v) => update({ resolution: v === 'all' ? null : v === 'true' })}
+                                        onValueChange={(v: string) => update({ resolution: v === 'all' ? null : v === 'true' })}
                                     >
                                         <SelectTrigger className="h-9 rounded-xl border-[#E5E7EB] text-[13px]">
                                             <SelectValue />
@@ -191,7 +191,7 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
 
                                 {/* Escalation */}
                                 <div className="space-y-2">
-                                    <label className="text-[11px] font-semibold uppercase tracking-wider text-[#9C9889]">Escalation type</label>
+                                    <label className="text-[11px] font-semibold uppercase tracking-wider text-[#9C9889]">Handover type</label>
                                     <div className="flex gap-2">
                                         {['Natural', 'Failure'].map((type) => {
                                             const active = filters.escalation_types.includes(type);
@@ -219,15 +219,15 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                 {/* Frustration */}
                                 <div className="space-y-2">
                                     <label className="text-[11px] font-semibold uppercase tracking-wider text-[#9C9889]">
-                                        Frustration &ge;
+                                        Satisfaction &le;
                                     </label>
                                     <div className="flex items-center gap-2">
                                         <Input
                                             type="number"
                                             min={1}
                                             max={10}
-                                            value={filters.frustration_min ?? ''}
-                                            onChange={(e) => update({ frustration_min: e.target.value ? Number(e.target.value) : null })}
+                                            value={filters.frustration_min !== null ? 10 - filters.frustration_min : ''}
+                                            onChange={(e) => update({ frustration_min: e.target.value ? 10 - Number(e.target.value) : null })}
                                             placeholder="Any"
                                             className="h-9 rounded-xl border-[#E5E7EB] text-[13px]"
                                         />
@@ -305,7 +305,7 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                     </div>
                                     <Switch
                                         checked={filters.highlights_only}
-                                        onCheckedChange={(checked) => update({ highlights_only: checked })}
+                                        onCheckedChange={(checked: boolean) => update({ highlights_only: checked })}
                                         className="data-[state=checked]:bg-[#E24B4A]"
                                     />
                                 </div>
@@ -317,14 +317,14 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9C9889]">Sort by</span>
                                 <Select
                                     value={filters.sort_by ?? 'default'}
-                                    onValueChange={(v) => update({ sort_by: v === 'default' ? null : v })}
+                                    onValueChange={(v: string) => update({ sort_by: v === 'default' ? null : v })}
                                 >
                                     <SelectTrigger className="h-9 flex-1 rounded-xl border-[#E5E7EB] text-[13px]">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="default">Default order</SelectItem>
-                                        <SelectItem value="frustration_score">Frustration score</SelectItem>
+                                        <SelectItem value="frustration_score">Satisfaction score</SelectItem>
                                         <SelectItem value="accuracy_score">Accuracy score</SelectItem>
                                     </SelectContent>
                                 </Select>

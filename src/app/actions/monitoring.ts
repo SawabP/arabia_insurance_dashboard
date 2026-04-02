@@ -18,11 +18,16 @@ export interface ListMonitoringParams {
 }
 
 export async function listMonitoringConversations(params: ListMonitoringParams = {}) {
+    let sort_direction = params.sort_direction ?? 'desc';
+    if (params.sort_by === 'frustration_score') {
+        sort_direction = sort_direction === 'asc' ? 'desc' : 'asc';
+    }
+
     const searchParams: Record<string, string | number | boolean | null | undefined | string[]> = {
         start_date: params.start_date,
         end_date: params.end_date,
         sort_by: params.sort_by ?? undefined,
-        sort_direction: params.sort_direction ?? 'desc',
+        sort_direction: sort_direction,
         limit: params.limit ?? 50,
         offset: params.offset ?? 0,
     };

@@ -74,7 +74,7 @@ export function AgentPulse({ data, scoreTrends, intentDistribution }: AgentPulse
             {escalation.length > 0 && (
                 <div>
                     <div className="text-xs text-muted-foreground mb-1">
-                        Escalation breakdown (of {totalEsc} conversations)
+                        Handover breakdown (of {totalEsc} conversations)
                     </div>
                     <div className="flex h-2.5 rounded-full overflow-hidden">
                         {escalation.map((e) => (

@@ -17,7 +17,7 @@ const TOOLTIP_STYLE = {
 
 const LINES = [
     { key: 'resolution_rate_pct', name: 'Resolution', color: GRADE_COLORS.green, hero: true },
-    { key: 'escalation_rate_pct', name: 'Escalation', color: GRADE_COLORS.amber, hero: false },
+    { key: 'escalation_rate_pct', name: 'Handover', color: GRADE_COLORS.blue, hero: false },
     { key: 'escalation_failure_rate_pct', name: 'Failure Esc.', color: GRADE_COLORS.coral, hero: false },
     { key: 'loop_detected_rate_pct', name: 'Loop', color: GRADE_COLORS.red, hero: false },
     { key: 'non_genuine_rate_pct', name: 'Non-genuine', color: GRADE_COLORS.gray, hero: false },

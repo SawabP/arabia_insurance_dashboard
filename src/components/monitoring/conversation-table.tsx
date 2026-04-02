@@ -5,8 +5,9 @@ import { format, parseISO } from 'date-fns';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import type { MonitoringConversationSummary } from '@/lib/monitoring-types';
 import { HighlightBadge } from './highlight-badge';
-import { heatColor, frustrationColor } from '@/components/ai-performance/grade-colors';
+import { heatColor } from '@/components/ai-performance/grade-colors';
 import { cn } from '@/lib/utils';
+import { invertTenPointScore } from '@/lib/score-formatters';
 
 function formatDateLabel(value: string) {
     try {
@@ -25,7 +26,7 @@ function ScoreCell({ value, inverted = false }: { value: number | null; inverted
         );
     }
 
-    const colors = inverted ? frustrationColor(value) : heatColor(value);
+    const colors = heatColor(value);
     return (
         <span
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[12px] font-bold"
@@ -87,7 +88,7 @@ export function ConversationTable({
                                 Res.
                             </TableHead>
                             <TableHead className="h-auto w-[5rem] border-b border-[#E5E7EB] px-4 py-3 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-[#6B7280]">
-                                Frust.
+                                Satis.
                             </TableHead>
                             <TableHead className="h-auto border-b border-[#E5E7EB] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.08em] text-[#6B7280]">
                                 Highlights
@@ -134,7 +135,7 @@ export function ConversationTable({
                                         <ResolutionCell value={item.resolution} />
                                     </TableCell>
                                     <TableCell className="px-4 py-4 text-center">
-                                        <ScoreCell value={item.frustration_score} inverted />
+                                        <ScoreCell value={item.frustration_score !== null ? invertTenPointScore(item.frustration_score) : null} />
                                     </TableCell>
                                     <TableCell className="px-4 py-4">
                                         <div className="flex flex-wrap gap-1.5">

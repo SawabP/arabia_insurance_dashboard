@@ -13,8 +13,8 @@ interface OutcomeDelta {
     previous: number;
     delta: number;
     hero?: boolean;
-    /** true = higher is better (resolution), false = lower is better (loop, escalation) */
-    higherIsBetter: boolean;
+    /** true = higher is better (resolution), false = lower is better (loop), null = neutral (handover) */
+    higherIsBetter: boolean | null;
 }
 
 interface IntentMovement {
@@ -36,9 +36,9 @@ function computeOutcomeDeltas(
         return vals.reduce((s, v) => s + v, 0) / vals.length;
     };
 
-    const metrics: { key: keyof OutcomeTrendResponse['points'][0]; label: string; hero?: boolean; higherIsBetter: boolean }[] = [
+    const metrics: { key: keyof OutcomeTrendResponse['points'][0]; label: string; hero?: boolean; higherIsBetter: boolean | null }[] = [
         { key: 'resolution_rate_pct', label: 'Resolution Rate', hero: true, higherIsBetter: true },
-        { key: 'escalation_rate_pct', label: 'Escalation', hero: false, higherIsBetter: false },
+        { key: 'escalation_rate_pct', label: 'Handover', hero: false, higherIsBetter: null },
         { key: 'escalation_failure_rate_pct', label: 'Failure Esc.', hero: false, higherIsBetter: false },
         { key: 'loop_detected_rate_pct', label: 'Loop Detected', hero: false, higherIsBetter: false },
         { key: 'non_genuine_rate_pct', label: 'Non-genuine', hero: false, higherIsBetter: false },
@@ -85,15 +85,21 @@ function computeIntentMovement(
         .slice(0, 5);
 }
 
-function DeltaBadge({ delta, higherIsBetter }: { delta: number; higherIsBetter: boolean }) {
+function DeltaBadge({ delta, higherIsBetter }: { delta: number; higherIsBetter: boolean | null }) {
     if (Math.abs(delta) < 0.1) {
         return <span className="text-[11px] font-semibold text-muted-foreground">--</span>;
     }
 
     const isPositive = delta > 0;
-    const isGood = higherIsBetter ? isPositive : !isPositive;
-    const color = isGood ? 'text-emerald-600' : 'text-red-500';
-    const bgColor = isGood ? 'bg-emerald-50 dark:bg-emerald-950/30' : 'bg-red-50 dark:bg-red-950/30';
+    let color, bgColor;
+    if (higherIsBetter === null) {
+        color = 'text-slate-600 dark:text-slate-400';
+        bgColor = 'bg-slate-100 dark:bg-slate-800/50';
+    } else {
+        const isGood = higherIsBetter ? isPositive : !isPositive;
+        color = isGood ? 'text-emerald-600' : 'text-red-500';
+        bgColor = isGood ? 'bg-emerald-50 dark:bg-emerald-950/30' : 'bg-red-50 dark:bg-red-950/30';
+    }
     const sign = isPositive ? '+' : '';
 
     return (
@@ -193,7 +199,7 @@ export function TrendsTab({
             {/* Outcome rate trends chart */}
             <div>
                 <SectionLabel>Outcome rate trends</SectionLabel>
-                <p className="text-xs text-muted-foreground mb-3">How resolution, escalation, and failure rates change over time</p>
+                <p className="text-xs text-muted-foreground mb-3">How resolution, handover, and failure rates change over time</p>
                 <OutcomeTrendsChart data={outcomeTrends} />
             </div>
 
