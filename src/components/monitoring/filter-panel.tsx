@@ -219,15 +219,15 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                 {/* Frustration */}
                                 <div className="space-y-2">
                                     <label className="text-[11px] font-semibold uppercase tracking-wider text-[#9C9889]">
-                                        Satisfaction &le;
+                                        Frustration &ge;
                                     </label>
                                     <div className="flex items-center gap-2">
                                         <Input
                                             type="number"
                                             min={1}
                                             max={10}
-                                            value={filters.frustration_min !== null ? 10 - filters.frustration_min : ''}
-                                            onChange={(e) => update({ frustration_min: e.target.value ? 10 - Number(e.target.value) : null })}
+                                            value={filters.frustration_min ?? ''}
+                                            onChange={(e) => update({ frustration_min: e.target.value ? Number(e.target.value) : null })}
                                             placeholder="Any"
                                             className="h-9 rounded-xl border-[#E5E7EB] text-[13px]"
                                         />
@@ -324,7 +324,7 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="default">Default order</SelectItem>
-                                        <SelectItem value="frustration_score">Satisfaction score</SelectItem>
+                                        <SelectItem value="frustration_score">Frustration score</SelectItem>
                                         <SelectItem value="accuracy_score">Accuracy score</SelectItem>
                                     </SelectContent>
                                 </Select>

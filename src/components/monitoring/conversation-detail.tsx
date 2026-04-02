@@ -8,7 +8,6 @@ import type { MonitoringConversationDetail } from '@/lib/monitoring-types';
 import { HighlightBadge } from './highlight-badge';
 import { GradePanel } from './grade-panel';
 import { TranscriptView } from './transcript-view';
-import { invertTenPointScore } from '@/lib/score-formatters';
 
 const TABS = ['AI Grades', 'Transcript', 'History'] as const;
 
@@ -169,7 +168,7 @@ export function ConversationDetail({ detail, expanded = false, onToggleExpand }:
                                                     {resolutionSummary(item.resolution)}
                                                     {item.resolution === null ? 'Unknown' : item.resolution ? 'Resolved' : 'Unresolved'}
                                                 </span>
-                                                {item.frustration_score !== null && <span>Satisfaction {invertTenPointScore(item.frustration_score)}/10</span>}
+                                                {item.frustration_score !== null && <span>Frustration {item.frustration_score}/10</span>}
                                                 {item.accuracy_score !== null && <span>Accuracy {item.accuracy_score}/10</span>}
                                                 {item.escalation_type && item.escalation_type !== 'None' && <span>{item.escalation_type === 'Failure' ? 'Failure escalation' : `${item.escalation_type} handover`}</span>}
                                             </div>
