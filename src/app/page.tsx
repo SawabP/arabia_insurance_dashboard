@@ -6,7 +6,7 @@ import { DateRangePicker } from '@/components/dashboard/date-range-picker';
 import { RecentInteractions } from '@/components/dashboard/recent-interactions';
 import { Sparkline } from '@/components/dashboard/sparkline';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
-import { ChannelSelector } from '@/components/dashboard/channel-selector';
+import { DashboardPageShell } from '@/components/dashboard/dashboard-page-shell';
 
 interface DashboardPageProps {
     searchParams: {
@@ -55,30 +55,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ]);
 
     return (
-        <div className="flex-1 space-y-6 p-8 overflow-y-auto">
-            <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                    <h2 className="text-3xl font-bold tracking-tight">AIVA Control Center</h2>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
-                        <div className="flex items-center gap-1.5">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                            </span>
-                            Backend API: Connected
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <CheckCircle2 className="h-3 w-3 text-green-500" />
-                            Authenticated session
-                        </div>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <ChannelSelector />
-                    <DateRangePicker />
-                </div>
-            </div>
-
+        <DashboardPageShell>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <Card className="relative overflow-hidden group">
                     <CardContent className="p-6">
@@ -285,6 +262,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </DashboardPageShell>
     );
 }

@@ -7,7 +7,11 @@ import { Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 
-export function DateRangePicker() {
+interface DateRangePickerProps {
+    onNavigate?: (href: string) => void;
+}
+
+export function DateRangePicker({ onNavigate }: DateRangePickerProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -40,9 +44,14 @@ export function DateRangePicker() {
         if (end) params.set('endDate', end);
         else params.delete('endDate');
 
-        router.push(`?${params.toString()}`);
+        const href = `?${params.toString()}`;
+        if (onNavigate) {
+            onNavigate(href);
+        } else {
+            router.push(href);
+        }
         setIsOpen(false);
-    }, [router, searchParams]);
+    }, [onNavigate, router, searchParams]);
 
     const applyPreset = (preset: '7days' | '30days' | 'thisMonth' | 'lastMonth') => {
         const now = new Date();
@@ -79,9 +88,14 @@ export function DateRangePicker() {
         const params = new URLSearchParams(searchParams);
         params.delete('startDate');
         params.delete('endDate');
-        router.push(`?${params.toString()}`);
+        const href = `?${params.toString()}`;
+        if (onNavigate) {
+            onNavigate(href);
+        } else {
+            router.push(href);
+        }
         setIsOpen(false);
-    }, [router, searchParams]);
+    }, [onNavigate, router, searchParams]);
 
     const displayLabel = startDate && endDate
         ? `${format(new Date(startDate), 'MMM dd, yyyy')} - ${format(new Date(endDate), 'MMM dd, yyyy')}`

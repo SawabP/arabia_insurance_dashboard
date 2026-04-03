@@ -50,6 +50,10 @@ vi.mock('@/components/dashboard/channel-selector', () => ({
     ChannelSelector: () => <div data-testid="channel-selector" />,
 }));
 
+vi.mock('@/components/dashboard/dashboard-page-shell', () => ({
+    DashboardPageShell: ({ children }: { children: React.ReactNode }) => <div data-testid="dashboard-page-shell">{children}</div>,
+}));
+
 vi.mock('@/components/ai-performance/score-ring', () => ({
     ScoreRing: () => <div data-testid="score-ring" />,
 }));

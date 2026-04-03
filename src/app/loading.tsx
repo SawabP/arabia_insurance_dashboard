@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardContentSkeleton } from '@/components/dashboard/dashboard-content-skeleton';
 
 export default function DashboardLoading() {
     return (
@@ -12,28 +13,7 @@ export default function DashboardLoading() {
                 <Skeleton className="h-10 w-[260px] rounded-md" />
             </div>
 
-            {/* KPI cards grid */}
-            <div className="grid gap-4 md:grid-cols-3">
-                {Array.from({ length: 9 }).map((_, i) => (
-                    <div key={i} className="rounded-xl border bg-card p-6 space-y-3">
-                        <Skeleton className="h-5 w-5 rounded-lg" />
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-8 w-24" />
-                    </div>
-                ))}
-            </div>
-
-            {/* Charts */}
-            <div className="grid gap-6 md:grid-cols-2">
-                <div className="col-span-2 rounded-xl border bg-card">
-                    <div className="p-4 border-b">
-                        <Skeleton className="h-4 w-40" />
-                    </div>
-                    <div className="p-6">
-                        <Skeleton className="h-[350px] w-full rounded-lg" />
-                    </div>
-                </div>
-            </div>
+            <DashboardContentSkeleton />
         </div>
     );
 }

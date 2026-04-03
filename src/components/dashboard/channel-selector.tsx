@@ -8,10 +8,14 @@ import { cn } from '@/lib/utils';
 const channels = [
     { id: 'all', label: 'All Channels', icon: Layers },
     { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare },
-    { id: 'outlook', label: 'Email', icon: Mail },
+    { id: 'web', label: 'Email', icon: Mail },
 ];
 
-export function ChannelSelector() {
+interface ChannelSelectorProps {
+    onNavigate?: (href: string) => void;
+}
+
+export function ChannelSelector({ onNavigate }: ChannelSelectorProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentChannel = searchParams.get('channel') || 'all';
@@ -23,8 +27,13 @@ export function ChannelSelector() {
         } else {
             params.set('channel', channelId);
         }
-        router.push(`?${params.toString()}`);
-    }, [router, searchParams]);
+        const href = `?${params.toString()}`;
+        if (onNavigate) {
+            onNavigate(href);
+            return;
+        }
+        router.push(href);
+    }, [onNavigate, router, searchParams]);
 
     return (
         <div className="flex bg-muted/50 p-1 rounded-lg border">
