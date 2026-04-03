@@ -4,6 +4,7 @@ import DashboardPage from '@/app/page';
 import { AgentPulse } from '@/components/ai-performance/agent-pulse';
 import { Correlations } from '@/components/ai-performance/correlations';
 import { MiniPerf } from '@/components/ai-performance/mini-perf';
+import { TrendsTab } from '@/components/ai-performance/trends-tab';
 import { GradePanel } from '@/components/monitoring/grade-panel';
 
 vi.mock('@/app/actions/dashboard', () => ({
@@ -67,6 +68,14 @@ vi.mock('@/components/ai-performance/score-trends-chart', () => ({
 
 vi.mock('@/components/ai-performance/intent-distribution', () => ({
     IntentDistribution: () => <div data-testid="intent-distribution" />,
+}));
+
+vi.mock('@/components/ai-performance/outcome-trends-chart', () => ({
+    OutcomeTrendsChart: () => <div data-testid="outcome-trends-chart" />,
+}));
+
+vi.mock('@/components/ai-performance/intent-trends-chart', () => ({
+    IntentTrendsChart: () => <div data-testid="intent-trends-chart" />,
 }));
 
 describe('analytics page layout', () => {
@@ -188,5 +197,58 @@ describe('daily timeline perf tooltip', () => {
         await waitFor(() => {
             expect(document.querySelector('.fixed.z-\\[60\\]')).toBeTruthy();
         });
+    });
+});
+
+describe('AI performance trends cards', () => {
+    it('renames the failure escalation card to escalation without changing the chart section copy', () => {
+        render(
+            <TrendsTab
+                outcomeTrends={{
+                    date_window: { start_date: '2026-03-01', end_date: '2026-03-30' },
+                    points: [
+                        {
+                            date: '2026-03-30',
+                            resolution_rate_pct: 82,
+                            escalation_rate_pct: 15,
+                            escalation_failure_rate_pct: 6,
+                            loop_detected_rate_pct: 4,
+                            non_genuine_rate_pct: 2,
+                        },
+                    ],
+                }}
+                outcomeTrendsPrev={{
+                    date_window: { start_date: '2026-02-01', end_date: '2026-02-28' },
+                    points: [
+                        {
+                            date: '2026-02-28',
+                            resolution_rate_pct: 80,
+                            escalation_rate_pct: 14,
+                            escalation_failure_rate_pct: 5,
+                            loop_detected_rate_pct: 3,
+                            non_genuine_rate_pct: 2,
+                        },
+                    ],
+                }}
+                intentDistribution={{
+                    date_window: { start_date: '2026-03-01', end_date: '2026-03-30' },
+                    total_graded_customer_days: 1,
+                    items: [],
+                }}
+                intentDistributionPrev={{
+                    date_window: { start_date: '2026-02-01', end_date: '2026-02-28' },
+                    total_graded_customer_days: 1,
+                    items: [],
+                }}
+                intentTrend={{
+                    date_window: { start_date: '2026-03-01', end_date: '2026-03-30' },
+                    points: [],
+                }}
+            />,
+        );
+
+        expect(screen.getByText('Escalation')).toBeInTheDocument();
+        expect(screen.queryByText('Failure Esc.')).not.toBeInTheDocument();
+        expect(screen.getByText('How resolution, handover, and failure rates change over time')).toBeInTheDocument();
     });
 });

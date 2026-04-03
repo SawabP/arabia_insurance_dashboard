@@ -39,7 +39,7 @@ function computeOutcomeDeltas(
     const metrics: { key: keyof OutcomeTrendResponse['points'][0]; label: string; hero?: boolean; higherIsBetter: boolean | null }[] = [
         { key: 'resolution_rate_pct', label: 'Resolution Rate', hero: true, higherIsBetter: true },
         { key: 'escalation_rate_pct', label: 'Handover', hero: false, higherIsBetter: null },
-        { key: 'escalation_failure_rate_pct', label: 'Failure Esc.', hero: false, higherIsBetter: false },
+        { key: 'escalation_failure_rate_pct', label: 'Escalation', hero: false, higherIsBetter: false },
         { key: 'loop_detected_rate_pct', label: 'Loop Detected', hero: false, higherIsBetter: false },
         { key: 'non_genuine_rate_pct', label: 'Non-genuine', hero: false, higherIsBetter: false },
     ];
